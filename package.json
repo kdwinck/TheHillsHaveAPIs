@@ -1,0 +1,23 @@
+{
+  "name": "the_hills_have_apis",
+  "version": "1.0.0",
+  "description": "horror movie api",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "chai",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kdwinck/TheHillsHaveAPIs.git"
+  },
+  "author": "Kyle Winkler, Frank Iriarte, Michael Bishop, Ron Murphy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kdwinck/TheHillsHaveAPIs/issues"
+  },
+  "homepage": "https://github.com/kdwinck/TheHillsHaveAPIs#readme"
+}
