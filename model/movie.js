@@ -7,7 +7,8 @@ let movieSchema = Schema ({
   original_title: {type: String}, // movie name
   release_date: {type: String},  // release date
   addDate: {type: Date},         // date added to collection
-  overview: {type: String}      // small synap
+  overview: {type: String},     // small synap
+  rating: Number
 });
 
 module.exports = mongoose.model('movie', movieSchema);
