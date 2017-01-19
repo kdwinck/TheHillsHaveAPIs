@@ -22,7 +22,9 @@
   "homepage": "https://github.com/kdwinck/TheHillsHaveAPIs#readme",
   "dependencies": {
     "bluebird": "^3.4.7",
+    "es6-promise": "^4.0.5",
     "express": "^4.14.0",
+    "isomorphic-fetch": "^2.2.1",
     "mongoose": "^4.7.7"
   }
 }
