@@ -17,6 +17,7 @@ module.exports = (router) => {
           })
       .then(db => db.forEach(movie => { ///promisify all the things promise.all???
         let dbMovie = new Movie(movie);
+        console.log(movie);
         dbMovie.save();
       }))
       .then(() => res.send('Complete'))
