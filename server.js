@@ -4,6 +4,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const app = express();
+const userRoute = require('./route/user-route');
+const dbRoute = require('./route/db-routes');
+
+app.use(userRoute);
+app.use(dbRoute);
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/devMidterm';
@@ -19,5 +24,3 @@ const server = module.exports = app.listen(PORT, () => {
 server.isRunning = true; //setup for testing ability to toggle on/off in before block
 
 module.exports = app;
-
-require('./route/db-routes')(app);
