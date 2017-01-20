@@ -2,7 +2,6 @@ require('es6-promise').polyfill();
 require('isomorphic-fetch');
 const Movie = require('../model/movie');
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
-console.log(TMDB_API_KEY);
 
 module.exports = (router) => {
 
@@ -18,6 +17,7 @@ module.exports = (router) => {
           })
       .then(db => db.forEach(movie => { ///promisify all the things promise.all???
         let dbMovie = new Movie(movie);
+        console.log(movie);
         dbMovie.save();
       }))
       .then(() => res.send('Complete'))
