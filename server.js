@@ -21,3 +21,4 @@ server.isRunning = true; //setup for testing ability to toggle on/off in before 
 module.exports = app;
 
 require('./route/db-routes')(app);
+require('./route/auth-routes')(app);
