@@ -18,7 +18,10 @@ let userSchema = Schema({
 userSchema.methods.hashPassword = function(password){
   return new Promise((resolve, reject) => {
     bcrypt.hash(password, 10, (err, hash) => {
-      if(err) return reject(err);
+      if(err){
+        console.log(err);
+        reject(err);
+      }
       this.password = hash;
       resolve(this);
     });
