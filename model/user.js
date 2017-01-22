@@ -57,4 +57,5 @@ userSchema.methods.compareHashPassword = function(password){
   });
 };
 
+
 module.exports = mongoose.model('user', userSchema);
