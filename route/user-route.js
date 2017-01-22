@@ -9,6 +9,7 @@ const bearerAuth = require('../lib/bearer-auth-middleware');
 
 //signup - doesnt require auth
 userRouter.post('/signup', jsonParser, (req, res) => {
+  req.body.addDate = new Date();
   if(!req.body.username) {
     return res.status(400).send('no username');
   } if(!req.body.password) {
