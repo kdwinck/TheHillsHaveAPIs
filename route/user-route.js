@@ -27,11 +27,6 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 
 //authorize login
 userRouter.get('/login', basicAuth, (req, res) => {
-<<<<<<< HEAD
-  // console.log(req.auth);
-=======
-  console.log(req.auth);
->>>>>>> master
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -50,7 +45,7 @@ userRouter.get('/login', basicAuth, (req, res) => {
   })
   .catch();
 });
-<<<<<<< HEAD
+
 // Prints out a list of all users
 userRouter.get('/users', bearerAuth, (req, res) => {
   console.log('inside /users/ route');
@@ -79,7 +74,6 @@ userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
 })
 
 
-=======
 
 
 
