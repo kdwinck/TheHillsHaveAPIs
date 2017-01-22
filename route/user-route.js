@@ -5,6 +5,7 @@ const userRouter = module.exports = new Router();
 const jsonParser = require('body-parser').json();
 const User = require('../model/user');
 const basicAuth = require('../lib/basic-auth-middleware');
+const bearerAuth = require('../lib/bearer-auth-middleware');
 
 //signup - doesnt require auth
 userRouter.post('/signup', jsonParser, (req, res) => {
@@ -25,8 +26,8 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 });
 
 //authorize login
- userRouter.get('/login', basicAuth, (req, res) => {
-  console.log(req.auth);
+userRouter.get('/login', basicAuth, (req, res) => {
+  // console.log(req.auth);
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -45,3 +46,31 @@ userRouter.post('/signup', jsonParser, (req, res) => {
   })
   .catch();
 });
+// Prints out a list of all users
+userRouter.get('/users', bearerAuth, (req, res) => {
+  console.log('inside /users/ route');
+  User.find({})
+  .then(user => {
+    console.log(user);
+    res.send(user);
+  });
+});
+
+userRouter.get('/users/movies', bearerAuth, (req, res) => {
+  console.log('inside users/movie route');
+  console.log(req.user);
+
+  User.findById(req.user._id)
+  .populate('movies')
+  .then(user => {
+    console.log(user);
+    return res.send(user.favMovies);
+  });
+});
+
+userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
+  console.log('inside put route');
+  User.findByIdAndUpdate()
+})
+
+
