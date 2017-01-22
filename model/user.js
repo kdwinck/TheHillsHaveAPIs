@@ -30,19 +30,24 @@ userSchema.methods.hashPassword = function(password){
 
 //CALLED inside of a signup route as a res.send as well as other authorized routes
 userSchema.methods.generateToken = function() {
-  return new Promise((resolve, reject) => {
+  // return new Promise((resolve, reject) => {
+    console.log('ID ', this.id);
     //this is where we attach a token as a property of the user ({pw = this._id}) to create an association between the logged in user and the server
-    jwt.sign({id:this._id}, process.env.SECRET || 'DEV', (err, token) => {
-      if(err) return reject(createError(401, 'invalid id'));
-      if(!token) return reject(createError(401, 'bad token'));
-      resolve(this);
-    });
-  });
+    return jwt.sign({id: this._id}, 'DEV')//, (err, token) => {
+      // console.log('JWT 1');
+      // if(err) return reject(createError(401, 'invalid id'));
+      // if(!token) return reject(createError(401, 'bad token'));
+      // console.log('JWT 2');
+      // resolve(this);
+    // });
+  // });
 };
 
 //this is for a login route. we need it to check against a saved user in our db
 userSchema.methods.compareHashPassword = function(password){
+  console.log('in hash password');
   return new Promise((resolve, reject) => {
+    console.log('inside promise');
     bcrypt.compare(password, this.password, (err, valid) => {
       if(err) return reject(err);
       if(!valid) return reject(createError(401, 'wrong password'));
