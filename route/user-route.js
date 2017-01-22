@@ -5,6 +5,7 @@ const userRouter = module.exports = new Router();
 const jsonParser = require('body-parser').json();
 const User = require('../model/user');
 const basicAuth = require('../lib/basic-auth-middleware');
+const bearerAuth = require('../lib/bearer-auth-middleware');
 
 //signup - doesnt require auth
 userRouter.post('/signup', jsonParser, (req, res) => {
@@ -44,4 +45,39 @@ userRouter.get('/login', basicAuth, (req, res) => {
     res.send(token);
   })
   .catch();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//create unauthed GET user/:id/reviews inside user-routes to get ALL user's reviews (first the client has to GET an id from hitting the /users endpoint and use an id from a created/signed up user)
+userRouter.get('/user/:id/reviews', (req, res, next) => {
+  console.log('inside /user/:id/reviews');
+  User.findById(req.params.id)
+  .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
+  .catch(err => next(err));
 });

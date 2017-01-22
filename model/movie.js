@@ -8,7 +8,8 @@ let movieSchema = Schema ({
   release_date: {type: String},  // release date
   addDate: {type: Date},         // date added to collection
   overview: {type: String},     // small synap
-  rating: Number
+  rating: Number,
+  reviews: [{type:Schema.Types.ObjectId, ref:'review'}]
 });
 
 movieSchema.methods.updateRating = function() {
