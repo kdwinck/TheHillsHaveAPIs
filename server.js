@@ -4,6 +4,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const app = express();
+// const userRoute = require('./route/user-route');
+// const dbRoute = require('./route/db-routes');
+
+// app.use(userRoute);
+// app.use(dbRoute);
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/devMidterm';
@@ -22,3 +27,4 @@ module.exports = app;
 
 require('./route/db-routes')(app);
 require('./route/auth-routes')(app);
+require('./route/user-route');
