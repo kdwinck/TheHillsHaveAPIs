@@ -11,12 +11,8 @@ let userSchema = Schema({
   username: {type: String, required: true, unique: true},
   password: {type: String, required: true},
   email: {type: String, required: true, unique: true},
-<<<<<<< HEAD
-  favMovies: [{type:Schema.Types.ObjectId, ref: 'movies'}]
-=======
   favMovies: [{type:Schema.Types.ObjectId, ref: 'movie'}],
   reviews: [{type:Schema.Types.ObjectId, ref:'review'}]
->>>>>>> master
 });
 
 //to be used inside of unauthed post/signup route

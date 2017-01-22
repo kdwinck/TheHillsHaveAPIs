@@ -109,4 +109,3 @@ userRouter.get('/user/:id/reviews', (req, res, next) => {
   .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
   .catch(err => next(err));
 });
->>>>>>> master
