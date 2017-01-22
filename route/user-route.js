@@ -27,7 +27,11 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 
 //authorize login
 userRouter.get('/login', basicAuth, (req, res) => {
+<<<<<<< HEAD
   // console.log(req.auth);
+=======
+  console.log(req.auth);
+>>>>>>> master
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -46,6 +50,7 @@ userRouter.get('/login', basicAuth, (req, res) => {
   })
   .catch();
 });
+<<<<<<< HEAD
 // Prints out a list of all users
 userRouter.get('/users', bearerAuth, (req, res) => {
   console.log('inside /users/ route');
@@ -74,3 +79,40 @@ userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
 })
 
 
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//create unauthed GET user/:id/reviews inside user-routes to get ALL user's reviews (first the client has to GET an id from hitting the /users endpoint and use an id from a created/signed up user)
+userRouter.get('/user/:id/reviews', (req, res, next) => {
+  console.log('inside /user/:id/reviews');
+  User.findById(req.params.id)
+  .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
+  .catch(err => next(err));
+});
+>>>>>>> master
