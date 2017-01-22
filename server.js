@@ -6,15 +6,24 @@ const Promise = require('bluebird');
 const app = express();
 const userRoute = require('./route/user-route');
 const dbRoute = require('./route/db-routes');
-
-app.use(userRoute);
-app.use(dbRoute);
-
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/devMidterm';
 
 mongoose.Promise = Promise;//tells mongoose to promisify everything
 mongoose.connect(MONGODB_URI);
+
+
+app.use(userRoute);
+app.use(dbRoute);
+app.use(function(err, req, res, next){
+  if(!err.status){
+    return res.status(500).send('server error');
+  }
+  if(err){
+    res.status(err.status).send(err.name);
+    next(); //has to be here even if we're not nexting anything
+  }
+}); //can be written as app.use(errorMiddleware) if we want to modularize the code more
 
 
 const server = module.exports = app.listen(PORT, () => {
