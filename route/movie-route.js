@@ -16,22 +16,21 @@ let router = module.exports = new Router();
 
 router.get('/movies', (req, res) => {
   console.log('in /movies');
-  Movie.find({})
+  Movie.find({}).limit(10)
     .then(movies => res.json(movies))
-    .catch(res.json({message: 'Not Found'}));
+    .catch(() => res.json('not found'));
 });
 
 router.get('/movies/:id', (req, res) => {
   Movie.findById(req.params.id)
     .then(movie => res.json(movie))
-    .catch(res.json({message: 'Not Found'}));
+    .catch(() => res.json({message: 'not found'}));
 });
 
-// route for get movie by title?
-router.get('/movies/:title', (req, res) => {
-  Movie.find({original_title: req.params.title})
+router.get('/movies/title/:title', (req, res) => {
+  Movie.findOne({ original_title: req.params.title})
     .then(movie => res.json(movie))
-    .catch(res.json({message: 'not found'}));
+    .catch(() => res.json({message: 'movie not found'}));
 });
 
 /// auth routes /////////////////////////////////////////////////////////////
