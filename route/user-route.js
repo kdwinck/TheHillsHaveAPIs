@@ -27,7 +27,11 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 
 //authorize login
 userRouter.get('/login', basicAuth, (req, res) => {
+<<<<<<< HEAD
+  // console.log(req.auth);
+=======
   console.log(req.auth);
+>>>>>>> master
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -46,6 +50,36 @@ userRouter.get('/login', basicAuth, (req, res) => {
   })
   .catch();
 });
+<<<<<<< HEAD
+// Prints out a list of all users
+userRouter.get('/users', bearerAuth, (req, res) => {
+  console.log('inside /users/ route');
+  User.find({})
+  .then(user => {
+    console.log(user);
+    res.send(user);
+  });
+});
+
+userRouter.get('/users/movies', bearerAuth, (req, res) => {
+  console.log('inside users/movie route');
+  console.log(req.user);
+
+  User.findById(req.user._id)
+  .populate('movies')
+  .then(user => {
+    console.log(user);
+    return res.send(user.favMovies);
+  });
+});
+
+userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
+  console.log('inside put route');
+  User.findByIdAndUpdate()
+})
+
+
+=======
 
 
 
@@ -81,3 +115,4 @@ userRouter.get('/user/:id/reviews', (req, res, next) => {
   .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
   .catch(err => next(err));
 });
+>>>>>>> master
