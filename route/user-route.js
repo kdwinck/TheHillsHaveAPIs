@@ -25,7 +25,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 });
 
 //authorize login
- userRouter.get('/login', basicAuth, (req, res) => {
+userRouter.get('/login', basicAuth, (req, res) => {
   console.log(req.auth);
   if(!req.auth.username) {
     return res.status(400).send('no username');

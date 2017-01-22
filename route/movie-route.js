@@ -1,14 +1,55 @@
 'use strict';
 
-const Router = require('express').Router;
-const Movies = require('../model/movie.js');
-const User = require('../model/user');
 const jsonParser = require('body-parser').json();
+const Router = require('express').Router;
+
+const Movie = require('../model/movie.js');
+const User = require('../model/user');
+const Review = require('../model/review');
+
+const basicAuth = require('../lib/basic-auth-middleware');
+const bearerAuth = require('../lib/bearer-auth-middleware');
 
 let router = module.exports = new Router();
 
-router.get('/movies,', (req, res) => {
-  Movies.find({})
-  .then(res.json(Movies))
-  .catch(res.json({message: 'Not Found'}));
+/// unauthorized routes /////////////////////////////////////////////////////
+
+router.get('/movies', (req, res) => {
+  console.log('in /movies');
+  Movie.find({})
+    .then(movies => res.json(movies))
+    .catch(res.json({message: 'Not Found'}));
+});
+
+router.get('/movies/:id', (req, res) => {
+  Movie.findById(req.params.id)
+    .then(movie => res.json(movie))
+    .catch(res.json({message: 'Not Found'}));
+});
+
+// route for get movie by title?
+router.get('/movies/:title', (req, res) => {
+  Movie.find({original_title: req.params.title})
+    .then(movie => res.json(movie))
+    .catch(res.json({message: 'not found'}));
+});
+
+/// auth routes /////////////////////////////////////////////////////////////
+
+router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
+  let newReview;
+  Movie.findById(req.params.id)
+  .then(movie => {
+    new Review(req.body).save()
+    .then(review => {
+      newReview = review;
+      req.user.reviews.push(review);
+      req.user.save();
+      movie.reviews.push(review);
+      movie.updateRating();
+      movie.save();
+    })
+    .then(() => res.json(newReview))
+    .catch(() => res.stats(400).send('bad request'));
+  });
 });
