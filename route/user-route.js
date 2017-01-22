@@ -70,8 +70,8 @@ userRouter.get('/users/movies', bearerAuth, (req, res) => {
 
 userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
   console.log('inside put route');
-  User.findByIdAndUpdate()
-})
+  User.findByIdAndUpdate();
+});
 
 
 

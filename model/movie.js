@@ -12,4 +12,15 @@ let movieSchema = Schema ({
   reviews: [{type:Schema.Types.ObjectId, ref:'review'}]
 });
 
+movieSchema.methods.updateRating = function() {
+  let numReviews = this.reviews.length;
+  this.reviews.map(review => {
+    return review.rating;
+  })
+  .reduce((a, b) => {
+    return a + b;
+  })
+  .then(totalRatings => this.rating = totalRatings/numReviews);
+};
+
 module.exports = mongoose.model('movie', movieSchema);
