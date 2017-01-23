@@ -29,10 +29,16 @@ router.get('/movies/:id', (req, res) => {
 
 router.get('/movies/title/:title', (req, res) => {
   Movie.findOne({ original_title: req.params.title})
+    .then(movie => movie.calcRating())
     .then(movie => res.json(movie))
     .catch(() => res.json({message: 'movie not found'}));
 });
 
+router.get('/movies/:id/reviews', (req, res) => {
+  Movie.findById(req.params.id)
+    .populate('reviews')
+    .then(movie => res.json(movie.reviews));
+});
 /// auth routes /////////////////////////////////////////////////////////////
 
 router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
