@@ -24,7 +24,7 @@ router.get('/movies/:id', (req, res) => {
     .populate('reviews')
     .then(movie => movie.calcRating())
     .then(movie => res.json(movie))
-    .catch(() => res.json({message: 'not found'}));
+    .catch((e) => res.json({err: e}));
 });
 
 router.get('/movies/title/:title', (req, res) => {

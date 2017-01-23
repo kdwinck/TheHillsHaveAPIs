@@ -7,20 +7,26 @@ let movieSchema = Schema ({
   original_title: {type: String},
   release_date: {type: String},
   overview: {type: String},
+  rating: Number,
   reviews: [{type:Schema.Types.ObjectId, ref:'review'}]
 });
 
-movieSchema.methods.calcRating = function(res) {
-  return new Promise((reject, resolve)=> {
-    let numReviews = this.reviews.length;
-    let total = this.reviews.map(review => {
-      return review.rating;
-    })
-    .reduce((a, b) => {
-      return a + b;
-    }, 0);
-    res.overallRating = total/numReviews;
-    resolve(this);
+movieSchema.methods.calcRating = function() {
+  return new Promise((resolve, reject)=> {
+    console.log(this);
+    if (this.reviews.length) {
+      let numReviews = this.reviews.length;
+      console.log(numReviews);
+      let total = this.reviews.map(review => {
+        return review.rating;
+      })
+      .reduce((a, b) => {
+        return a + b;
+      }, 0);
+      this.rating = total/numReviews;
+      console.log(this.rating);
+      this.save().then(resolve(this));
+    }
     reject('balls');
   });
 };

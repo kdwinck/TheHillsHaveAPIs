@@ -13,7 +13,6 @@ let testMovie = {
   original_title: 'Movie Test',
   release_date: '2000-01-01',
   overview: 'bushboozeled again',
-  rating: 0,
   reviews: []
 };
 
@@ -74,7 +73,6 @@ describe('a movie module', function() {
             expect(res.body.original_title).to.equal('Movie Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(res.body.rating).to.equal(0);
             expect(typeof res.body).to.equal(typeof []);
             done();
           });
@@ -99,10 +97,10 @@ describe('a movie module', function() {
         request.get(`${url}/movies/title/${this.testMovie.original_title}`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
+            expect(res.rating).to.equal(typeof Number);
             expect(res.body.original_title).to.equal('Movie Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(res.body.rating).to.equal(0);
             expect(typeof res.body).to.equal(typeof []);
             done();
           });
