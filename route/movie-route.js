@@ -47,6 +47,7 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
   .then(movie => {
     new Review(req.body).save()
     .then(review => {
+      console.log(review);
       newReview = review;
       req.user.reviews.push(review);
       req.user.save()
