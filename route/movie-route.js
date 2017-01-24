@@ -14,7 +14,7 @@ let router = module.exports = new Router();
 /// unauthorized routes /////////////////////////////////////////////////////
 
 router.get('/movies', (req, res) => {
-  Movie.find({}).limit(10)
+  Movie.find({})
     .then(movies => res.json(movies))
     .catch(() => res.json('not found'));
 });

@@ -13,10 +13,8 @@ let movieSchema = Schema ({
 
 movieSchema.methods.calcRating = function() {
   return new Promise((resolve, reject)=> {
-    console.log(this);
     if (this.reviews.length) {
       let numReviews = this.reviews.length;
-      console.log(numReviews);
       let total = this.reviews.map(review => {
         return review.rating;
       })
@@ -24,10 +22,10 @@ movieSchema.methods.calcRating = function() {
         return a + b;
       }, 0);
       this.rating = total/numReviews;
-      console.log(this.rating);
       this.save().then(resolve(this));
     }
-    reject('balls');
+    resolve(this);
+    reject('poopoo');
   });
 };
 

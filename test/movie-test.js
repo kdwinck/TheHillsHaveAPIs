@@ -5,6 +5,7 @@ let request = require('superagent');
 let mongoose = require('mongoose');
 
 let Movie = require('../model/movie');
+let Review = require('../model/review');
 let url = 'http://localhost:3000';
 
 let server = require('../server');
@@ -14,6 +15,11 @@ let testMovie = {
   release_date: '2000-01-01',
   overview: 'bushboozeled again',
   reviews: []
+};
+
+let testReview = {
+  rating: 10,
+  reviewText: 'Noice',
 };
 
 describe('a movie module', function() {
@@ -104,6 +110,31 @@ describe('a movie module', function() {
             expect(typeof res.body).to.equal(typeof []);
             done();
           });
+      });
+
+      describe('movies/:id/reviews', function() {
+        before(done => {
+          new Movie(testMovie).save()
+            .then(() => {
+              new Review(testReview.save());
+              done();
+            });
+        });
+        after(done => {
+          Movie.remove({})
+            .then(() => Review.remove({}))
+            .then(() =>  done())
+            .catch(done);
+        });
+
+        it('will return a list of reviews for that movie', done => {
+          request.get('/movies/:id/reviews')
+            .end( (err, res) => {
+              expect(res.status).to.equal(200);
+              expect(res.body).to.equal([]);
+              done();
+            });
+        });
       });
     });
   });
