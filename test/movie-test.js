@@ -6,6 +6,8 @@ let mongoose = require('mongoose');
 
 let Movie = require('../model/movie');
 let Review = require('../model/review');
+let User = require('../model/user');
+
 let url = 'http://localhost:3000';
 
 let server = require('../server');
@@ -24,8 +26,10 @@ let testReview = {
 };
 
 let testUser = {
-  user
-}
+  username: 'Kyle',
+  password: 'password',
+  email: 'test@gmail.com'
+};
 
 describe('a movie module', function() {
   // let server;
@@ -58,6 +62,7 @@ describe('a movie module', function() {
           .end( (err, res) => {
             expect(res.status).to.equal(200);
             expect(typeof res.body).to.equal(typeof []);
+            expect(res.body[0].original_title).to.equal('Test');
             done();
           });
       });
@@ -116,28 +121,40 @@ describe('a movie module', function() {
             done();
           });
       });
+    });
 
-      describe('/movies/:id/reviews', function() {
-        before(done => new Movie(testMovie).save())
-            .then(() => new Review(testReview).save())
-              .then(() => new User(testUser).save())
-                .then(() => done())
-        });
-        after(done => {
-          Movie.remove({})
-            .then(() => Review.remove({}))
-            .then(() =>  done())
-            .catch(done);
-        });
+    describe('/movies/:id/reviews', function() {
+      let movie = null;
+      before(done => {
+        new Movie(testMovie).save()
+          .then(newMovie => {
+            movie = newMovie;
+            new Review(testReview).save()
+              .then(review => {
+                newMovie.reviews.push(review);
+                console.log(movie);
+              })
+              .then(() => done());
+          });
+      });
+      after(done => {
+        Movie.remove({})
+          .then(() => Review.remove({}))
+          .then(() =>  done())
+          .catch(done);
+      });
 
-        it('will return a list of reviews for that movie', done => {
-          request.get('/movies/:id/reviews')
-            .end( (err, res) => {
-              expect(res.status).to.equal(200);
-              // expect(res.body).to.equal([]);
-              done();
-            });
-        });
+      it('will return a list of reviews for that movie', done => {
+        console.log(movie);
+        request.get(`${url}/movies/${movie._id}/reviews`)
+          .end( (err, res) => {
+            // console.log(err)
+            console.log('res');
+            console.log(res);
+            expect(res.status).to.equal(200);
+            // expect(res.body).to.equal([]);
+            done();
+          });
       });
     });
   });

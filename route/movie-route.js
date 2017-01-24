@@ -37,7 +37,8 @@ router.get('/movies/title/:title', (req, res) => {
 router.get('/movies/:id/reviews', (req, res) => {
   Movie.findById(req.params.id)
     .populate('reviews')
-    .then(movie => res.json(movie.reviews));
+    .then(movie => res.json(movie.reviews))
+    .catch((e) => res.json(e));
 });
 /// auth routes /////////////////////////////////////////////////////////////
 
