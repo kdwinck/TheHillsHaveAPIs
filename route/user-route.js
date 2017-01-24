@@ -133,7 +133,7 @@ userRouter.get('/user/:id/reviews', (req, res, next) => {
   .catch(err => next(err));
 });
 
-//create authed GET /reviews which shows all user reviews (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
+//create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
 //not tested - requires review relationship and route first?
 userRouter.get('/user/reviews', bearerAuth, (req, res, next) => {
   console.log('inside authed user movie reviews');
@@ -167,3 +167,25 @@ userRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res, n
   .then(() => res.status(204).send(`${reviewIndex} deleted`))
   .catch(err => next(err));
 });
+
+// router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
+//   let newReview;
+//   let reviewMovie;
+//   Movie.findById(req.params.id)
+//   .then(movie => {
+//     reviewMovie = movie;
+//     console.log(req.body);
+//     return new Review(req.body).save();
+//   })
+//   .then(reviewForFoundMovie => {
+//     newReview = reviewForFoundMovie;
+//     req.user.reviews.push(reviewForFoundMovie);
+//     return req.user.save();
+//   })
+//   .then(() => {
+//     reviewMovie.reviews.push(newReview);
+//     return reviewMovie.save();
+//   })
+//   .then(() => res.send(newReview))
+//   .catch(err => next(err));
+// });

@@ -60,25 +60,3 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
     .catch(() => res.status(400).send('bad request'));
   });
 });
-
-// router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
-//   let newReview;
-//   let reviewMovie;
-//   Movie.findById(req.params.id)
-//   .then(movie => {
-//     reviewMovie = movie;
-//     console.log(req.body);
-//     return new Review(req.body).save();
-//   })
-//   .then(reviewForFoundMovie => {
-//     newReview = reviewForFoundMovie;
-//     req.user.reviews.push(reviewForFoundMovie);
-//     return req.user.save();
-//   })
-//   .then(() => {
-//     reviewMovie.reviews.push(newReview);
-//     return reviewMovie.save();
-//   })
-//   .then(() => res.send(newReview))
-//   .catch(err => next(err));
-// });
