@@ -71,8 +71,8 @@ userRouter.get('/users', bearerAuth, (req, res) => {
 userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
   console.log('inside put route');
   console.log(req.body);
-  User.findByIdAndUpdate(req.user.id, req.body);
-  User.hashPassword(req.user.password)
+  User.findByIdAndUpdate(req.user.id, req.body)
+  .then(user => user.hashPassword(req.body.password))
   .then(user => {
     user.save();
     res.json(user);
