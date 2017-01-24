@@ -103,9 +103,32 @@ userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
 
 
 //create unauthed GET user/:id/reviews inside user-routes to get ALL user's reviews (first the client has to GET an id from hitting the /users endpoint and use an id from a created/signed up user)
+//not tested - requires review relationship and route first?
 userRouter.get('/user/:id/reviews', (req, res, next) => {
   console.log('inside /user/:id/reviews');
   User.findById(req.params.id)
   .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
   .catch(err => next(err));
 });
+
+//create authed GET /reviews which shows all user reviews (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
+//not tested - requires review relationship and route first?
+userRouter.get('/reviews', bearerAuth, (req, res, next) => {
+  console.log('inside authed user movie reviews');
+  User.findById(req.user._id)
+  .populate('reviews')
+  .then(user => {
+    console.log(user);
+    return res.send(user.reviews);
+  })
+  .catch(err => next(err));
+});
+
+//create authed DELETE for a user to delete a review for a specific movie
+// DELETE movies/:id/reviews - and call .updateRating from movieSchema, push new value and save?
+//not tested - requires review relationship and route first?
+userRouter.delete('/movies/:id/reviews', bearerAuth, (req, res, next) => {
+  console.log('inside authed DELETE route to delete a user specific review on a movie object');
+  Movie.findById(req.movie._id)
+  //or? User.findById(req.movie.review)?
+})
