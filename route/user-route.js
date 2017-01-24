@@ -9,6 +9,7 @@ const bearerAuth = require('../lib/bearer-auth-middleware');
 
 //signup - doesnt require auth
 userRouter.post('/signup', jsonParser, (req, res) => {
+  req.body.addDate = new Date();
   if(!req.body.username) {
     return res.status(400).send('no username');
   } if(!req.body.password) {
@@ -26,7 +27,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 });
 
 //authorize login
-userRouter.get('/login', basicAuth, (req, res) => {
+userRouter.get('/login', basicAuth, (req, res, next) => {
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -38,12 +39,11 @@ userRouter.get('/login', basicAuth, (req, res) => {
     console.log('before OMG');
     return user.generateToken();
   })
-
   .then(token => {
     console.log(token);
     res.send(token);
   })
-  .catch();
+  .catch(next);
 });
 
 // Prints out a list of all users
@@ -56,21 +56,41 @@ userRouter.get('/users', bearerAuth, (req, res) => {
   });
 });
 
-userRouter.get('/users/movies', bearerAuth, (req, res) => {
-  console.log('inside users/movie route');
-  console.log(req.user);
+// userRouter.get('/users/:id', bearerAuth, (req, res) => {
+//   console.log('inside users/movie route');
+//   // console.log(req.user);
+//
+//   User.findById(req.user._id)
+//   .populate('movies')
+//   .then(user => {
+//     console.log(user);
+//     res.send(user);
+//   });
+// });
 
-  User.findById(req.user._id)
-  .populate('movies')
+userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
+  console.log('inside put route');
+  console.log(req.body);
+  User.findByIdAndUpdate(req.user.id, req.body)
+  .then(user => user.hashPassword(req.body.password))
   .then(user => {
-    console.log(user);
-    return res.send(user.favMovies);
+    user.save();
+    res.json(user);
+  })
+  .catch(e => {
+    console.log(e);
+    res.json({});
   });
 });
 
-userRouter.put('/users/movies/:id', bearerAuth, (req, res) => {
-  console.log('inside put route');
-  User.findByIdAndUpdate();
+userRouter.delete('/users/', bearerAuth, (req, res) => {
+  console.log('inside delete');
+  User.findByIdAndRemove(req.user.id)
+  .then(user => res.json(user))
+  .catch(e => {
+    console.log(e);
+    res.json({})
+  })
 });
 
 
