@@ -6,7 +6,7 @@ let request = require('superagent');
 
 let Movie = require('../model/movie');
 let Review = require('../model/review');
-// let User = require('../model/user');
+let User = require('../model/user');
 
 let url = 'http://localhost:3000';
 
@@ -28,11 +28,8 @@ let testReview = {
 let testUser = {
   username: 'Kyle',
   password: 'password',
-  email: 'test@gmail.com'
+  email: 'kyle@gmail.com'
 };
-
-// let wtf = new Review(testReview).save();
-// console.log(wtf);
 
 describe('a movie module', function() {
   // let server;
@@ -152,6 +149,42 @@ describe('a movie module', function() {
             expect(res.status).to.equal(200);
             expect(res.body[0].rating).to.equal(10);
             expect(res.body[0].reviewText).to.equal('Noice');
+            done();
+          });
+      });
+    });
+
+  });
+  describe('/POST', function() {
+    describe('/movies/:id/reviews', function() {
+      before(done => {
+        new Movie(testMovie).save()
+          .then(movie => {
+            this.movie = movie;
+            new User(testUser).save()
+              .then(user => user.generateToken())
+              .then(token => {
+                this.token = token;
+                done();
+              });
+          });
+      });
+      after(done => {
+        Movie.remove({})
+          .then(() => User.remove({}))
+          .then(() => Review.remove({}))
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('will create a new review', done => {
+        request.post(`${url}/movies/${this.movie._id}/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer ' + this.token)
+          .end( (err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.rating).to.equal(10);
+            expect(res.body.reviewText).to.equal('Noice');
             done();
           });
       });
