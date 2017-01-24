@@ -19,7 +19,6 @@ router.get('/api/getMovies/:page', (req, res) => {
         })
     .then(db => db.forEach(movie => { ///promisify all the things promise.all???
       let dbMovie = new Movie(movie);
-      console.log(movie);
       dbMovie.save();
     }))
     .then(() => res.send('Complete'))

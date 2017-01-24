@@ -2,11 +2,11 @@
 
 let expect = require('chai').expect;
 let request = require('superagent');
-let mongoose = require('mongoose');
+// let mongoose = require('mongoose');
 
 let Movie = require('../model/movie');
 let Review = require('../model/review');
-let User = require('../model/user');
+// let User = require('../model/user');
 
 let url = 'http://localhost:3000';
 
@@ -22,7 +22,7 @@ let testMovie = {
 
 let testReview = {
   rating: 10,
-  reviewText: 'Noice',
+  reviewText: 'Noice'
 };
 
 let testUser = {
@@ -30,6 +30,9 @@ let testUser = {
   password: 'password',
   email: 'test@gmail.com'
 };
+
+// let wtf = new Review(testReview).save();
+// console.log(wtf);
 
 describe('a movie module', function() {
   // let server;
@@ -124,17 +127,16 @@ describe('a movie module', function() {
     });
 
     describe('/movies/:id/reviews', function() {
-      let movie = null;
       before(done => {
         new Movie(testMovie).save()
-          .then(newMovie => {
-            movie = newMovie;
+          .then(movie => {
+            this.testMovie = movie;
             new Review(testReview).save()
               .then(review => {
-                newMovie.reviews.push(review);
-                console.log(movie);
-              })
-              .then(() => done());
+                this.testMovie.reviews.push(review);
+                this.testMovie.save()
+                  .then(() => done());
+              });
           });
       });
       after(done => {
@@ -145,14 +147,11 @@ describe('a movie module', function() {
       });
 
       it('will return a list of reviews for that movie', done => {
-        console.log(movie);
-        request.get(`${url}/movies/${movie._id}/reviews`)
+        request.get(`${url}/movies/${this.testMovie._id}/reviews`)
           .end( (err, res) => {
-            // console.log(err)
-            console.log('res');
-            console.log(res);
             expect(res.status).to.equal(200);
-            // expect(res.body).to.equal([]);
+            expect(res.body[0].rating).to.equal(10);
+            expect(res.body[0].reviewText).to.equal('Noice');
             done();
           });
       });
