@@ -4,6 +4,7 @@ const Router = require('express').Router;
 const userRouter = module.exports = new Router();
 const jsonParser = require('body-parser').json();
 const User = require('../model/user');
+const Movie = require('../model/movie');
 const basicAuth = require('../lib/basic-auth-middleware');
 const bearerAuth = require('../lib/bearer-auth-middleware');
 
@@ -149,6 +150,15 @@ userRouter.get('/reviews', bearerAuth, (req, res, next) => {
 //not tested - requires review relationship and route first?
 userRouter.delete('/movies/:id/reviews', bearerAuth, (req, res, next) => {
   console.log('inside authed DELETE route to delete a user specific review on a movie object');
+  let reviewIndex;
   Movie.findById(req.movie._id)
-  //or? User.findById(req.movie.review)?
-})
+  .then(movie => {
+    console.log(movie);
+    reviewIndex = movie._id.review.indexOf(req.movie._id);
+    console.log(reviewIndex);
+    movie._id.review.splice(reviewIndex, 1);
+    return movie.save();
+  })
+  .then(() => res.status(204).send(`${reviewIndex} deleted`))
+  .catch(err => next(err));
+});
