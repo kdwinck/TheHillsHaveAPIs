@@ -23,9 +23,9 @@ const mockUser = {
 
 describe('should test routes', function(){
   before('start the server', function(done) {
-    if(server.isListening === false){
+    if(server.isRunning === false){
       server.listen(PORT, function(){
-        server.isListening = true;
+        server.isRunning = true;
         done();
       });
     } else {
@@ -33,15 +33,35 @@ describe('should test routes', function(){
     }
   });
   after('should turn the server off', function(done) {
-    server.isListening = false;
-    server.close();
-    done();
+    server.close((err) => {
+      server.isRunning = false;
+      if(err){
+        done(err);
+      } else {
+        done();
+      }
+    });
   });
   //test signup route
   describe('testing signup POST', function(){
     it('will signup/save a user', function(done){
-      
-      request.post()
-    })
+      request.post(`${url}/signup`)
+      .send(mockUser)
+      .end( (err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.text).to.equal('successful user signup');
+        done();
+      });
+    });
   });
+  describe('unauthed GET users', function(){
+    it('display a list of user Ids', function(done) {
+      request.get(`${url}/users`)
+      .end( (err, res) => {
+        expect(res.status).to.equal(200);
+        expect(Array.isArray(res.body)).to.equal(true);
+        expect(res.body.length).to.equal()
+      })
+    })
+  })
 });
