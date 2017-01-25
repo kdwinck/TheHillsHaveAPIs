@@ -9,6 +9,7 @@ let Review = require('../model/review');
 let User = require('../model/user');
 
 let url = 'http://localhost:3000';
+let PORT = process.env.PORT || 3000;
 
 let server = require('../server');
 
@@ -32,17 +33,21 @@ let testUser = {
 };
 
 describe('a movie module', function() {
-  // let server;
-  //
-  // before(done => {
-  //   server = require('../server');
-  //   server.listen(3000);
-  //   done();
-  // });
-  // after(done => {
-  //   server.close();
-  //   done();
-  // });
+  before('start the server', function(done) {
+    if(server.isListening === false){
+      server.listen(PORT, function(){
+        server.isListening = true;
+        done();
+      });
+    } else {
+      done();
+    }
+  });
+  after('should turn the server off', function(done) {
+    server.isListening = false;
+    server.close();
+    done();
+  });
 
   describe('GET', function() {
 
@@ -89,7 +94,7 @@ describe('a movie module', function() {
             expect(res.body.original_title).to.equal('Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(typeof res.body).to.equal(typeof []);
+            expect(typeof res.body).to.equal(typeof {});
             done();
           });
       });
@@ -117,7 +122,7 @@ describe('a movie module', function() {
             expect(res.body.original_title).to.equal('Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(typeof res.body).to.equal(typeof []);
+            expect(typeof res.body).to.equal(typeof {});
             done();
           });
       });

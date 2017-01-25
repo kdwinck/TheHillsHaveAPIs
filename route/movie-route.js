@@ -14,7 +14,7 @@ let router = module.exports = new Router();
 /// unauthorized routes /////////////////////////////////////////////////////
 
 router.get('/movies', (req, res) => {
-  Movie.find({})
+  Movie.find({}).limit(10)
     .then(movies => res.json(movies))
     .catch(() => res.json('not found'));
 });
@@ -40,6 +40,7 @@ router.get('/movies/:id/reviews', (req, res) => {
     .then(movie => res.json(movie.reviews))
     .catch((e) => res.json(e));
 });
+
 /// auth routes /////////////////////////////////////////////////////////////
 
 router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
@@ -48,7 +49,6 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
   .then(movie => {
     new Review(req.body).save()
     .then(review => {
-      console.log(review);
       newReview = review;
       req.user.reviews.push(review);
       req.user.save()
