@@ -19,7 +19,7 @@ const mockUser = {
 };
 
 //test signup route
-describe('')
+// describe('') 
 
 
 //when testing for a token call generateToken() and assign it to token, then pass it through the test.

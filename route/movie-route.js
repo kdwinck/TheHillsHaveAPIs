@@ -61,3 +61,9 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
     .catch(() => res.status(400).send('bad request'));
   });
 });
+
+/// add a movie to a users favMovies
+
+/// get a users favMovies
+
+/// delete a movie from a users favMovies
