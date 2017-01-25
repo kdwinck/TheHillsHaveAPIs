@@ -47,28 +47,48 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
   })
   .catch(next);
 });
-
+// UNAUTHORIZED ROUTES ////////////////////////////////////////////////////
 // Prints out a list of all users
-userRouter.get('/users', bearerAuth, (req, res) => {
-  console.log('inside /users/ route');
+
+userRouter.get('/users',(req, res) => {
+  console.log('inside unauth /users route');
   User.find({})
+  // .populate('movies')
+  .then(user => {
+    // console.log(user);
+    return user.map(function(user) {
+      return user._id;
+    });
+  })
   .then(user => {
     console.log(user);
     res.send(user);
   });
 });
 
-// userRouter.get('/users/:id', bearerAuth, (req, res) => {
-//   console.log('inside users/movie route');
-//   // console.log(req.user);
-//
-//   User.findById(req.user._id)
-//   .populate('movies')
-//   .then(user => {
-//     console.log(user);
-//     res.send(user);
-//   });
-// });
+userRouter.get('/users/:id', (req, res) => {
+  console.log('inside unauth user/id route');
+  console.log(req.params);
+
+  User.findById(req.params.id)
+  // .populate('movies')
+  .then(user => {
+    // console.log(user);
+    res.send(user);
+  });
+});
+// AUTHORIZED ROUTES //////////////////////////////////////////////////////
+
+userRouter.get('/auth-users', bearerAuth, (req, res) => {
+  console.log('inside auth get users');
+  User.find({})
+  .populate('movies')
+  .populate('reviews')
+  .then(user => {
+    console.log(user);
+    res.send(user);
+  });
+});
 
 userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
   console.log('inside put route');
@@ -91,8 +111,8 @@ userRouter.delete('/users/', bearerAuth, (req, res) => {
   .then(user => res.json(user))
   .catch(e => {
     console.log(e);
-    res.json({})
-  })
+    res.json({});
+  });
 });
 
 
