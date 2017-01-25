@@ -36,7 +36,7 @@ router.get('/movies/title/:title', (req, res) => {
 
 router.get('/movies/:id/reviews', (req, res) => {
   Movie.findById(req.params.id)
-    .populate('reviews')
+    .po-pulate('reviews')
     .then(movie => res.json(movie.reviews))
     .catch((e) => res.json(e));
 });
@@ -62,8 +62,29 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
   });
 });
 
-/// add a movie to a users favMovies
+router.get('/favorites', bearerAuth, (req, res) => {
+  console.log(req.User);
+  if(req.user.favMovies.length) res.send(req.user.favMovies);
+  res.send({msg: '404 not found'});
+});
 
-/// get a users favMovies
+router.get('/movies/:id/add', bearerAuth, (req, res) => {
+  Movie.findById(req.params.id)
+    .then(movie => {
+      console.log(movie);
+      console.log(req.user);
+      req.user.favMovies.push(movie);
+      req.user.save();
+    })
+    .then(() => console.log(req.user))
+    .then(() => res.json(req.user))
+    .catch(() => res.status(400).send('bad request'));
+});
 
-/// delete a movie from a users favMovies
+router.delete('/movies/:id/delete', bearerAuth, (req, res) => {
+  let movieIndex = req.user.favMovies.indexOf(req.params.id);
+  req.user.favMovies.splice(movieIndex, 1);
+  req.user.save()
+    .then(() => res.json(req.user.favMovies))
+    .catch(() => res.status(400).send('bad request'));
+});
