@@ -37,7 +37,8 @@ router.get('/movies/title/:title', (req, res) => {
 router.get('/movies/:id/reviews', (req, res) => {
   Movie.findById(req.params.id)
     .populate('reviews')
-    .then(movie => res.json(movie.reviews));
+    .then(movie => res.json(movie.reviews))
+    .catch((e) => res.json(e));
 });
 /// auth routes /////////////////////////////////////////////////////////////
 
@@ -47,6 +48,7 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
   .then(movie => {
     new Review(req.body).save()
     .then(review => {
+      console.log(review);
       newReview = review;
       req.user.reviews.push(review);
       req.user.save()

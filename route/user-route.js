@@ -4,6 +4,8 @@ const Router = require('express').Router;
 const userRouter = module.exports = new Router();
 const jsonParser = require('body-parser').json();
 const User = require('../model/user');
+const Movie = require('../model/movie');
+const Review = require('../model/review');
 const basicAuth = require('../lib/basic-auth-middleware');
 const bearerAuth = require('../lib/bearer-auth-middleware');
 
@@ -151,9 +153,9 @@ userRouter.get('/user/:id/reviews', (req, res, next) => {
   .catch(err => next(err));
 });
 
-//create authed GET /reviews which shows all user reviews (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
+//create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
 //not tested - requires review relationship and route first?
-userRouter.get('/reviews', bearerAuth, (req, res, next) => {
+userRouter.get('/user/reviews', bearerAuth, (req, res, next) => {
   console.log('inside authed user movie reviews');
   User.findById(req.user._id)
   .populate('reviews')
@@ -164,11 +166,46 @@ userRouter.get('/reviews', bearerAuth, (req, res, next) => {
   .catch(err => next(err));
 });
 
-//create authed DELETE for a user to delete a review for a specific movie
+//create authed DELETE for a user to delete a single review for a specific movie
 // DELETE movies/:id/reviews - and call .updateRating from movieSchema, push new value and save?
 //not tested - requires review relationship and route first?
-userRouter.delete('/movies/:id/reviews', bearerAuth, (req, res, next) => {
+userRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res, next) => {
   console.log('inside authed DELETE route to delete a user specific review on a movie object');
-  Movie.findById(req.movie._id)
-  //or? User.findById(req.movie.review)?
-})
+  let reviewIndex;
+  Movie.findById(req.params.movieId) //express knows that anything after a colon is a property/variable on the params object
+  .then(movie => {
+    console.log(movie);
+    reviewIndex = movie.reviews.indexOf(req.params.reviewId);
+    console.log('reviewIndex : ', reviewIndex);
+    movie.reviews.splice(reviewIndex, 1);
+    return movie.save();
+  })
+  // .then(() => {
+  //   Review.findById(req.params.reviewId);
+  // })
+  .then(() => Review.remove({_id:req.params.reviewId}))
+  .then(() => res.status(204).send(`${reviewIndex} deleted`))
+  .catch(err => next(err));
+});
+
+// router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
+//   let newReview;
+//   let reviewMovie;
+//   Movie.findById(req.params.id)
+//   .then(movie => {
+//     reviewMovie = movie;
+//     console.log(req.body);
+//     return new Review(req.body).save();
+//   })
+//   .then(reviewForFoundMovie => {
+//     newReview = reviewForFoundMovie;
+//     req.user.reviews.push(reviewForFoundMovie);
+//     return req.user.save();
+//   })
+//   .then(() => {
+//     reviewMovie.reviews.push(newReview);
+//     return reviewMovie.save();
+//   })
+//   .then(() => res.send(newReview))
+//   .catch(err => next(err));
+// });

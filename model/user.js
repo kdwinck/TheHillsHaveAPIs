@@ -33,7 +33,7 @@ userSchema.methods.hashPassword = function(password){
 //CALLED inside of a signup route as a res.send as well as other authorized routes
 userSchema.methods.generateToken = function() {
   // return new Promise((resolve, reject) => {
-  console.log('ID ', this.id);
+  // console.log('ID ', this.id);
     //this is where we attach a token as a property of the user ({pw = this._id}) to create an association between the logged in user and the server
   return jwt.sign({id: this._id}, 'DEV');//, (err, token) => {
       // console.log('JWT 1');
