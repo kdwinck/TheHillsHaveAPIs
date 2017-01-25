@@ -37,5 +37,3 @@ const server = module.exports = app.listen(PORT, () => {
 });
 
 server.isRunning = true; //setup for testing ability to toggle on/off in before block
-
-module.exports = app;
