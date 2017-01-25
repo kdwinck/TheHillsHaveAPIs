@@ -44,24 +44,38 @@ describe('should test routes', function(){
   });
   //test signup route
   describe('testing signup POST', function(){
-    it('will signup/save a user', function(done){
-      request.post(`${url}/signup`)
+    after(done => {
+      User.remove({})
+    .then(()=> {
+      done();
+    });
+      it('will signup/save a user', function(done){
+        request.post(`${url}/signup`)
       .send(mockUser)
       .end( (err, res) => {
         expect(res.status).to.equal(200);
         expect(res.text).to.equal('successful user signup');
         done();
       });
+      });
     });
   });
   describe('unauthed GET users', function(){
+    let mockUserId;
+    before(done => {
+      mockUserId = new User(mockUser);
+      mockUserId.save();
+      console.log(mockUserId);
+      done();
+    });
     it('display a list of user Ids', function(done) {
       request.get(`${url}/users`)
       .end( (err, res) => {
         expect(res.status).to.equal(200);
         expect(Array.isArray(res.body)).to.equal(true);
-        expect(res.body.length).to.equal()
-      })
-    })
-  })
+        expect(res.body[0]).to.equal(mockUserId._id.toString());
+        done();
+      });
+    });
+  });
 });
