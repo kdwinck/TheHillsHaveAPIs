@@ -55,27 +55,52 @@ describe('should test routes', function(){
       .end( (err, res) => {
         expect(res.status).to.equal(200);
         expect(res.text).to.equal('successful user signup');
-        done();
+        User.remove({})
+        .then(() => done())
+        .catch(done);
+        // done();
       });
       });
     });
   });
+
+
   describe('unauthed GET users', function(){
-    let mockUserId;
+    let data;
     before(done => {
-      mockUserId = new User(mockUser);
-      mockUserId.save();
-      console.log(mockUserId);
+      // data.save();
+      new User(mockUser).save()
+      .then(user => {
+        data = user;
+      });
       done();
     });
-    it('display a list of user Ids', function(done) {
+    after(done => {
+      User.remove({})
+      .then(() => done())
+      .catch(done);
+    });
+
+    it('display a list of user IDs', function(done) {
       request.get(`${url}/users`)
       .end( (err, res) => {
         expect(res.status).to.equal(200);
         expect(Array.isArray(res.body)).to.equal(true);
-        expect(res.body[0]).to.equal(mockUserId._id.toString());
+        expect(res.body[0]).to.equal(data._id.toString());
+        done();
+      });
+    });
+    it('should get a specific user ID info', function(done) {
+      request.get(`${url}/users/${data._id}`)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body.username).to.equal('testName');
+        expect(res.body.password).to.equal('testPassword');
+        expect(res.body.email).to.equal('test@testies.test');
+        expect(typeof res.body).to.equal(typeof []);
         done();
       });
     });
   });
+
 });
