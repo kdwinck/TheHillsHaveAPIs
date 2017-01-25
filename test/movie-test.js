@@ -9,8 +9,9 @@ let Review = require('../model/review');
 let User = require('../model/user');
 
 let url = 'http://localhost:3000';
+// let PORT = process.env.PORT || 3000;
 
-let server = require('../server');
+require('../server');
 
 let testMovie = {
   original_title: 'Test',
@@ -32,14 +33,18 @@ let testUser = {
 };
 
 describe('a movie module', function() {
-  // let server;
-  //
-  // before(done => {
-  //   server = require('../server');
-  //   server.listen(3000);
-  //   done();
+  // before('start the server', function(done) {
+  //   if(server.isListening === false){
+  //     server.listen(PORT, function(){
+  //       server.isListening = true;
+  //       done();
+  //     });
+  //   } else {
+  //     done();
+  //   }
   // });
-  // after(done => {
+  // after('should turn the server off', function(done) {
+  //   server.isListening = false;
   //   server.close();
   //   done();
   // });
@@ -69,10 +74,11 @@ describe('a movie module', function() {
     });
 
     describe('/movies/:id', function() {
+      let data;
       before(done => {
         new Movie(testMovie).save()
           .then( movie => {
-            this.testMovie = movie;
+            data = movie;
             done();
           });
       });
@@ -83,23 +89,24 @@ describe('a movie module', function() {
       });
 
       it('will return a movie object', done => {
-        request.get(`${url}/movies/${this.testMovie._id}`)
+        request.get(`${url}/movies/${data._id}`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.original_title).to.equal('Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(typeof res.body).to.equal(typeof []);
+            expect(typeof res.body).to.equal(typeof {});
             done();
           });
       });
     });
 
     describe('/movies/title/:title', function() {
+      let data;
       before(done => {
         new Movie(testMovie).save()
           .then( movie => {
-            this.testMovie = movie;
+            data = movie;
             done();
           });
       });
@@ -110,28 +117,29 @@ describe('a movie module', function() {
       });
 
       it('will return a movie object', done => {
-        request.get(`${url}/movies/title/${this.testMovie.original_title}`)
+        request.get(`${url}/movies/title/${data.original_title}`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.rating).to.equal(0);
             expect(res.body.original_title).to.equal('Test');
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
-            expect(typeof res.body).to.equal(typeof []);
+            expect(typeof res.body).to.equal(typeof {});
             done();
           });
       });
     });
 
     describe('/movies/:id/reviews', function() {
+      let movieData;
       before(done => {
         new Movie(testMovie).save()
           .then(movie => {
-            this.testMovie = movie;
+            movieData = movie;
             new Review(testReview).save()
               .then(review => {
-                this.testMovie.reviews.push(review);
-                this.testMovie.save()
+                movieData.reviews.push(review);
+                movieData.save()
                   .then(() => done());
               });
           });
@@ -144,7 +152,7 @@ describe('a movie module', function() {
       });
 
       it('will return a list of reviews for that movie', done => {
-        request.get(`${url}/movies/${this.testMovie._id}/reviews`)
+        request.get(`${url}/movies/${movieData._id}/reviews`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body[0].rating).to.equal(10);
@@ -153,18 +161,20 @@ describe('a movie module', function() {
           });
       });
     });
-
   });
+
   describe('/POST', function() {
     describe('/movies/:id/reviews', function() {
+      let movieData;
+      let tokenData;
       before(done => {
         new Movie(testMovie).save()
           .then(movie => {
-            this.movie = movie;
+            movieData = movie;
             new User(testUser).save()
               .then(user => user.generateToken())
               .then(token => {
-                this.token = token;
+                tokenData = token;
                 done();
               });
           });
@@ -178,9 +188,9 @@ describe('a movie module', function() {
       });
 
       it('will create a new review', done => {
-        request.post(`${url}/movies/${this.movie._id}/reviews`)
+        request.post(`${url}/movies/${movieData._id}/reviews`)
           .send(testReview)
-          .set('Authorization', 'Bearer ' + this.token)
+          .set('Authorization', 'Bearer ' + tokenData)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.rating).to.equal(10);

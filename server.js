@@ -8,6 +8,7 @@ const Promise = require('bluebird');
 const userRoute = require('./route/user-route');
 const dbRoute = require('./route/db-route');
 const movieRoute = require('./route/movie-route');
+const reviewRouter = require('./route/review-route');
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/devMidterm';
@@ -20,6 +21,7 @@ const app = express();
 app.use(userRoute);
 app.use(dbRoute);
 app.use(movieRoute);
+app.use(reviewRouter);
 
 app.use(function(err, req, res, next){
   if(!err.status){

@@ -44,8 +44,13 @@ describe('should test routes', function(){
   });
   //test signup route
   describe('testing signup POST', function(){
-    it('will signup/save a user', function(done){
-      request.post(`${url}/signup`)
+    after(done => {
+      User.remove({})
+    .then(()=> {
+      done();
+    });
+      it('will signup/save a user', function(done){
+        request.post(`${url}/signup`)
       .send(mockUser)
       .end( (err, res) => {
         expect(res.status).to.equal(200);
@@ -54,6 +59,7 @@ describe('should test routes', function(){
         .then(() => done())
         .catch(done);
         // done();
+      });
       });
     });
   });
