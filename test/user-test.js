@@ -60,8 +60,77 @@ describe('should test routes', function(){
       .end( (err, res) => {
         expect(res.status).to.equal(200);
         expect(Array.isArray(res.body)).to.equal(true);
-        expect(res.body.length).to.equal()
-      })
-    })
-  })
+        expect(res.body.length).to.equal(1);
+        done();
+      });
+    });
+  });
 });
+
+// 'use strict';
+//
+// let expect = require('chai').expect;
+// let request = require('superagent');
+// let mongoose = require('mongoose');
+//
+// let User = require('../model/user');
+// let url = 'http://localhost:3000';
+// let server = require('../server');
+
+// let testUser = {
+//   username: 'Ron Dunphy',
+//   password: 'password4321',
+//   email: 'applesauce@gmail.com'
+// };
+//
+//
+// describe('GET the user object', function() {
+//
+//   describe('/users', function() {
+//     before( function(done) {
+//       new User(testUser).save();
+//       done();
+//     });
+//     after(done => {
+//       User.remove({})
+//       .then(() => done())
+//       .catch(done);
+//     });
+//
+//     it('will return a user object', function(done) {
+//       request.get(`${url}/users`)
+//       .end( function(err, res) {
+//         expect(typeof res.body).to.equal(typeof {});
+//         done();
+//       });
+//     });
+//   });
+// });
+//
+// describe('should return the users _id number', function() {
+//
+//   describe('/users', function() {
+//     let userData;
+//     before( function(done) {
+//       new User(testUser).save()
+//       .then( function(newUser) {
+//         userData = newUser;
+//         done();
+//       });
+//     });
+//     after(done => {
+//       User.remove({})
+//       .then(() => done())
+//       .catch(done);
+//     });
+//     it('will have a user _id', function(done) {
+//       console.log(userData);
+//       request.get(`${url}/users`)
+//       .end((err, res) => {
+//         // console.log(res.body);
+//         expect(res.body[0].id).to.equal(userData._id);
+//         done();
+//       });
+//     });
+//   });
+// });
