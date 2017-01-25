@@ -18,10 +18,6 @@ const mockUser = {
   reviews: [],
 };
 
-//test signup route
-describe('')
-
-
 //when testing for a token call generateToken() and assign it to token, then pass it through the test.
 //when testing
 
@@ -40,5 +36,12 @@ describe('should test routes', function(){
     server.isListening = false;
     server.close();
     done();
+  });
+  //test signup route
+  describe('testing signup POST', function(){
+    it('will signup/save a user', function(done){
+      
+      request.post()
+    })
   });
 });

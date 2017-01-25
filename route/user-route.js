@@ -168,6 +168,16 @@ userRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res, n
   .catch(err => next(err));
 });
 
+
+//TO DO: authed POST to add movie to favMovie array prop
+//
+
+//TO DO: authed GET to get movies from favMovie array prop
+
+
+//TO DO: authed DELETE to remove movie to favMovie array prop
+
+
 // router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
 //   let newReview;
 //   let reviewMovie;
