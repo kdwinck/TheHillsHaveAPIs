@@ -38,28 +38,32 @@ router.get('/movies/:id/reviews', (req, res) => {
   Movie.findById(req.params.id)
     .populate('reviews')
     .then(movie => res.json(movie.reviews))
-    .catch((e) => res.json(e));
+    .catch(() => res.status(404).send('movie not found'));
 });
 
 /// auth routes /////////////////////////////////////////////////////////////
 
 router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
-  let newReview;
-  Movie.findById(req.params.id)
-  .then(movie => {
-    new Review(req.body).save()
-    .then(review => {
-      newReview = review;
-      req.user.reviews.push(review);
-      req.user.save()
-        .then(() => {
-          movie.reviews.push(review);
-          movie.save();
-        });
-    })
-    .then(() => res.json(newReview))
-    .catch(() => res.status(400).send('bad request'));
-  });
+  if (req.params.id) {
+    let newReview;
+    Movie.findById(req.params.id)
+    .then(movie => {
+      new Review(req.body).save()
+      .then(review => {
+        newReview = review;
+        req.user.reviews.push(review);
+        req.user.save()
+          .then(() => {
+            movie.reviews.push(review);
+            movie.save();
+          });
+      })
+      .then(() => res.json(newReview))
+      .catch(() => res.status(400).send('no id provided'));
+    });
+  } else {
+    console.log('else');
+  }
 });
 
 router.get('/favorites', bearerAuth, (req, res) => {

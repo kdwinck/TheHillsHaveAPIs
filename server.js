@@ -23,15 +23,14 @@ app.use(dbRoute);
 app.use(movieRoute);
 app.use(reviewRouter);
 
-app.use(function(err, req, res, next){
-  if(!err.status){
-    return res.status(500).send('server error');
-  }
-  if(err){
-    res.status(err.status).send(err.name);
-    next(); //has to be here even if we're not nexting anything
-  }
-}); //can be written as app.use(errorMiddleware) if we want to modularize the code more
+// app.use(function(err, req, res){
+//   if(!err.status){
+//     return res.status(500).send('server error');
+//   }
+//   if(err){
+//     res.status(err.status).send(err.name).end(); //has to be here even if we're not nexting anything
+//   }
+// }); //can be written as app.use(errorMiddleware) if we want to modularize the code more
 
 
 const server = module.exports = app.listen(PORT, () => {
