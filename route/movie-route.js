@@ -4,7 +4,7 @@ const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
 
 const Movie = require('../model/movie.js');
-// const User = require('../model/user');
+const User = require('../model/user');
 const Review = require('../model/review');
 
 const bearerAuth = require('../lib/bearer-auth-middleware');
@@ -14,9 +14,9 @@ let router = module.exports = new Router();
 /// unauthorized routes /////////////////////////////////////////////////////
 
 router.get('/movies', (req, res) => {
-  Movie.find({}).limit(10)
+  Movie.find({})
     .then(movies => res.json(movies))
-    .catch(() => res.json('not found'));
+    .catch(() => res.status(404).send('not found'));
 });
 
 router.get('/movies/:id', (req, res) => {
@@ -24,14 +24,14 @@ router.get('/movies/:id', (req, res) => {
     .populate('reviews')
     .then(movie => movie.calcRating())
     .then(movie => res.json(movie))
-    .catch((e) => res.json({err: e}));
+    .catch(() => res.status(404).send('movie not found'));
 });
 
 router.get('/movies/title/:title', (req, res) => {
   Movie.findOne({ original_title: req.params.title})
     .then(movie => movie.calcRating())
     .then(movie => res.json(movie))
-    .catch(() => res.json({message: 'movie not found'}));
+    .catch(() => res.status(404).send('movie not found'));
 });
 
 router.get('/movies/:id/reviews', (req, res) => {
@@ -63,9 +63,16 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
 });
 
 router.get('/favorites', bearerAuth, (req, res) => {
-  console.log(req.User);
-  if(req.user.favMovies.length) res.send(req.user.favMovies);
-  res.send({msg: '404 not found'});
+  User.findById(req.user._id)
+    .populate('favMovies')
+    .then(user => {
+      if (user.favMovies.length) {
+        res.json(user.favMovies);
+      } else {
+        res.status(404).send('no fav movies');
+      }
+    })
+    .catch(() => res.status(400).send('bad request'));
 });
 
 router.get('/movies/:id/add', bearerAuth, (req, res) => {

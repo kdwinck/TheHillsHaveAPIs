@@ -99,16 +99,24 @@ describe('a movie module', function() {
             done();
           });
       });
+      it('will return 404 if incorrect movie ID provided', done => {
+        request.get(`${url}/movies/1234`)
+          .end( (err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.text).to.equal('movie not found');
+            done();
+          });
+      });
     });
 
     describe('/movies/title/:title', function() {
       let data;
       before(done => {
         new Movie(testMovie).save()
-          .then( movie => {
-            data = movie;
-            done();
-          });
+        .then( movie => {
+          data = movie;
+          done();
+        });
       });
       after(done => {
         Movie.remove({})
@@ -125,6 +133,14 @@ describe('a movie module', function() {
             expect(res.body.release_date).to.equal('2000-01-01');
             expect(res.body.overview).to.equal('bushboozeled again');
             expect(typeof res.body).to.equal(typeof {});
+            done();
+          });
+      });
+      it('will return 404 if incorrect movie title provided', done => {
+        request.get(`${url}/movies/title/laksjdf;lajs`)
+          .end( (err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.text).to.equal('movie not found');
             done();
           });
       });
@@ -161,7 +177,14 @@ describe('a movie module', function() {
           });
       });
     });
+
+    // describe('/favorites', function() {
+    //   before(done => {
+    //
+    //   })
+    // });
   });
+
 
   describe('/POST', function() {
     describe('/movies/:id/reviews', function() {

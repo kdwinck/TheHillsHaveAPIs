@@ -11,7 +11,7 @@ const movieRoute = require('./route/movie-route');
 const reviewRouter = require('./route/review-route');
 
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/devMidterm';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/midtermTest';
 
 mongoose.Promise = Promise;//tells mongoose to promisify everything
 mongoose.connect(MONGODB_URI);
