@@ -4,7 +4,7 @@ const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
 
 const Movie = require('../model/movie.js');
-// const User = require('../model/user');
+const User = require('../model/user');
 const Review = require('../model/review');
 
 const bearerAuth = require('../lib/bearer-auth-middleware');
@@ -63,9 +63,16 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
 });
 
 router.get('/favorites', bearerAuth, (req, res) => {
-  console.log(req.User);
-  if(req.user.favMovies.length) res.send(req.user.favMovies);
-  res.send({msg: '404 not found'});
+  User.findById(req.user._id)
+    .populate('favMovies')
+    .then(user => {
+      if (user.favMovies.length) {
+        res.json(user.favMovies);
+      } else {
+        res.status(404).send('no fav movies');
+      }
+    })
+    .catch(() => res.status(400).send('bad request'));
 });
 
 router.get('/movies/:id/add', bearerAuth, (req, res) => {
@@ -74,10 +81,13 @@ router.get('/movies/:id/add', bearerAuth, (req, res) => {
       console.log(movie);
       console.log(req.user);
       req.user.favMovies.push(movie);
-      req.user.save();
+      return req.user.save();
     })
-    .then(() => console.log(req.user))
-    .then(() => res.json(req.user))
+    .then(() =>  {
+      return User.findById(req.user._id)
+      .populate('favMovies', 'original_title');
+    })
+    .then(user => res.json(user))
     .catch(() => res.status(400).send('bad request'));
 });
 
