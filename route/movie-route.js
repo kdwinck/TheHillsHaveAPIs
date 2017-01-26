@@ -85,10 +85,13 @@ router.get('/movies/:id/add', bearerAuth, (req, res) => {
       console.log(movie);
       console.log(req.user);
       req.user.favMovies.push(movie);
-      req.user.save();
+      return req.user.save();
     })
-    .then(() => console.log(req.user))
-    .then(() => res.json(req.user))
+    .then(() =>  {
+      return User.findById(req.user._id)
+      .populate('favMovies', 'original_title');
+    })
+    .then(user => res.json(user))
     .catch(() => res.status(400).send('bad request'));
 });
 
