@@ -66,19 +66,19 @@ describe('should start and kill server per unit test', function(){
       new User(mockUser).save()
       .then(user => {
         userTest = user;
-        new Movie(mockMovie).save()
+        return new Movie(mockMovie).save();
+      })
       .then(movie => {
         movieTest = movie;
-        new Review(mockReview).save()
-        .then(review => {
-          reviewTest = review;
-          userTest.favMovies.push(movieTest);
-          userTest.reviews.push(reviewTest);
-          userTest.save();
-          done();
-        });
-      });
-      });
+        return new Review(mockReview).save();
+      })
+      .then(review => {
+        reviewTest = review;
+        userTest.favMovies.push(movieTest);
+        userTest.reviews.push(reviewTest);
+        userTest.save();
+      })
+      .then(() => done());
     });
     after(done => {
       User.remove({})
@@ -91,13 +91,53 @@ describe('should start and kill server per unit test', function(){
       request.get(`${url}/user/${userTest._id}/reviews`)
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        console.log('res.body: ', res.body);
-        expect(res.body.reviews).to.equal('test review');
+        expect(res.body[0].reviewText).to.equal('test review');
+        done();
+      });
+    });
+  });
+  describe('authed GET for user/reviews', function(){
+    let reviewTest;
+    let movieTest;
+    let userTest;
+//instantiate schemas with mock objects
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        userTest = user;
+        return new Movie(mockMovie).save();
+      })
+      .then(movie => {
+        movieTest = movie;
+        return new Review(mockReview).save();
+      })
+      .then(review => {
+        reviewTest = review;
+        userTest.favMovies.push(movieTest);
+        userTest.reviews.push(reviewTest);
+        userTest.save();
+      })
+      .then(() => done());
+    });
+    //remove items from collections
+    after(done => {
+      User.remove({})
+      .then(() => Movie.remove({}))
+      .then(() => Review.remove({}))
+      .then(() => done())
+      .catch(done);
+    });
+    it('will return an array of user reviews', function(done) {
+      request.get(`${url}/user/${userTest._id}/reviews`)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body[0].reviewText).to.equal('test review');
         done();
       });
     });
   });
 });
+
 
 //2nd it block
 //create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
