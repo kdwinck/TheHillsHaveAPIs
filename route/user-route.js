@@ -17,10 +17,13 @@ userRouter.post('/signup', jsonParser, (req, res) => {
   } if(!req.body.password) {
     return res.status(400).send('no password');
   }
-  console.log(req.body , ' = req.body');
   let user = new User(req.body);
   user.hashPassword(user.password)
-  .then(user => user.save())
+  .then(user =>  {
+    user.save();
+    delete req.body.password;
+    console.log(req.body , ' = req.body');
+  })
   .then(() => res.send('successful user signup'))
   .catch(err => {
     console.log(err);
@@ -38,11 +41,10 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
   User.findOne({username: req.auth.username})
   .then(user => user.compareHashPassword(req.auth.password))
   .then(user =>  {
-    console.log('before OMG');
     return user.generateToken();
   })
   .then(token => {
-    console.log(token);
+    // console.log(token);
     res.send(token);
   })
   .catch(next);
@@ -71,9 +73,13 @@ userRouter.get('/users/:id', (req, res) => {
   console.log(req.params);
 
   User.findById(req.params.id)
-  // .populate('movies')
+  .populate('movies')
+  .populate('reviews')
   .then(user => {
+    console.log(req.params);
     // console.log(user);
+    // delete user.password;
+    // console.log(user.password);
     res.send(user);
   });
 });
@@ -92,11 +98,12 @@ userRouter.get('/auth-users', bearerAuth, (req, res) => {
 
 userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
   console.log('inside put route');
-  console.log(req.body);
   User.findByIdAndUpdate(req.user.id, req.body)
   .then(user => user.hashPassword(req.body.password))
   .then(user => {
     user.save();
+    delete req.body.password;
+    console.log(req.body);
     res.json(user);
   })
   .catch(e => {
