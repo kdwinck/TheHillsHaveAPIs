@@ -95,7 +95,6 @@ describe('should start and kill server per unit test', function(){
         expect(res.body.reviews).to.equal('test review');
         done();
       });
-      it('')
     });
   });
 });
