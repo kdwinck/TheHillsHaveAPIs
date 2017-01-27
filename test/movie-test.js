@@ -217,6 +217,7 @@ describe('a movie module', function() {
           .send(testReview)
           .set('Authorization', 'Bearer ' + tokenData)
           .end( (err, res) => {
+            console.log(err);
             expect(res.status).to.equal(200);
             expect(res.body.rating).to.equal(10);
             expect(res.body.reviewText).to.equal('Noice');
@@ -228,7 +229,7 @@ describe('a movie module', function() {
           .send(testReview)
           .end( (err, res) => {
             expect(res.status).to.equal(400);
-            expect(res.body.msg).to.equal('no auth header');
+            expect(res.text).to.equal('no auth header');
             done();
           });
       });

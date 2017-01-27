@@ -2,6 +2,7 @@
 
 const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
+const createError = require('http-errors');
 
 const Movie = require('../model/movie.js');
 const User = require('../model/user');
@@ -43,29 +44,28 @@ router.get('/movies/:id/reviews', (req, res) => {
 
 /// auth routes /////////////////////////////////////////////////////////////
 
-router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
-  if (req.params.id) {
-    let newReview;
-    let testMovie;
-    Movie.findById(req.params.id)
-      .then(movie => {
-        testMovie = movie;
-        return new Review(req.body).save();
-      })
-      .then(review => {
-        newReview = review;
-        req.user.reviews.push(review);
-        return req.user.save();
-      })
-      .then(() => {
-        testMovie.reviews.push(newReview);
-        testMovie.save();
-      })
-      .then(() => res.json(newReview))
-      .catch(() => res.status(404).send('not found'));
-  } else {
-    res.status(400).json({msg: 'bad request'});
-  }
+router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
+  console.log('in route');
+  let newReview;
+  let testMovie;
+  Movie.findById(req.params.id)
+    .then(movie => {
+      testMovie = movie;
+      return new Review(req.body).save();
+    })
+    .then(review => {
+      newReview = review;
+      req.user.reviews.push(newReview);
+      return req.user.save();
+    })
+    .then(() => {
+      testMovie.reviews.push(newReview);
+      testMovie.save();
+    })
+    .then(() => res.json(newReview))
+    .catch(() => {
+      next(createError(400, 'bad ID'));
+    });
 });
 
 router.get('/favorites', bearerAuth, (req, res) => {
