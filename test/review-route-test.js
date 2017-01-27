@@ -112,7 +112,6 @@ describe('should start and kill server per unit test', function(){
       })
       .then(token => {
         tokenVariable = token;
-        console.log('tokenVariable: ', tokenVariable);
       })
       .then(() => new Movie(mockMovie).save())
       .then(movie => {

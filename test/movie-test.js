@@ -217,7 +217,6 @@ describe('a movie module', function() {
           .send(testReview)
           .set('Authorization', 'Bearer ' + tokenData)
           .end( (err, res) => {
-            console.log(err);
             expect(res.status).to.equal(200);
             expect(res.body.rating).to.equal(10);
             expect(res.body.reviewText).to.equal('Noice');
@@ -230,6 +229,36 @@ describe('a movie module', function() {
           .end( (err, res) => {
             expect(res.status).to.equal(400);
             expect(res.text).to.equal('no auth header');
+            done();
+          });
+      });
+      it('will return 400 if token error', done => {
+        request.post(`${url}/movies/${movieData._id}/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer')
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('token error');
+            done();
+          });
+      });
+      it('will return 404 if incorrect movie ID', done => {
+        request.post(`${url}/movies/12345/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end( (err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.text).to.equal('movie not found');
+            done();
+          });
+      });
+      it('will return 500 for a server error', done => {
+        request.post(`${url}/movies/${movieData._id}/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer ' + 12345)
+          .end( (err, res) => {
+            expect(res.status).to.equal(500);
+            expect(res.text).to.equal('server error');
             done();
           });
       });
