@@ -4,25 +4,38 @@ const server = require('../server');
 const request = require('superagent');
 const expect = require('chai').expect;
 const User = require('../model/user');
+// const Review = require('../model/review');
+// const Movie = require('../model/movie');
 require('../server');
 
 const PORT = process.env.PORT || 3000;
 process.env.MONGODB_URI = 'mongodb://localhost/devMidtermTest';
+const url = 'http://localhost:3000';
 
-const url = 'http://localhost:3000'; //add endpoint?
+
+const mockReview = {
+  rating: 10,
+  reviewText: 'test review',
+};
+
 const mockUser = {
-  username: 'testName',
-  password: 'testPassword',
-  email: 'test@testies.test',
+  username: 'testyMctesterson',
+  password: 'test',
+  email: 'test@testy.test',
   favMovies: [],
   reviews: [],
 };
 
-//when testing for a token call generateToken() and assign it to token, then pass it through the test.
-//when testing
+const mockMovie = {
+  original_title: 'Test',
+  release_date: '2000-01-01',
+  overview: 'testing my patience',
+  rating: 10,
+  reviews: [],
+};
 
-describe('should test routes', function(){
-  before('start the server', function(done) {
+describe('should start and kill server per unit test', function(){
+  before('start the server', function(done){
     if(server.isRunning === false){
       server.listen(PORT, function(){
         server.isRunning = true;
@@ -32,7 +45,7 @@ describe('should test routes', function(){
       done();
     }
   });
-  after('should turn the server off', function(done) {
+  after('should turn the server off', function(done){
     server.close((err) => {
       server.isRunning = false;
       if(err){
@@ -42,65 +55,62 @@ describe('should test routes', function(){
       }
     });
   });
-  //test signup route
-  describe('testing signup POST', function(){
-    after(done => {
-      User.remove({})
-    .then(()=> {
-      done();
-    });
-      it('will signup/save a user', function(done){
-        request.post(`${url}/signup`)
-      .send(mockUser)
-      .end( (err, res) => {
-        expect(res.status).to.equal(200);
-        expect(res.text).to.equal('successful user signup');
-        User.remove({})
-        .then(() => done())
-        .catch(done);
-        // done();
-      });
-      });
-    });
-  });
+  describe('Un-Auth /GET for users', function() {
+  let userTest;
+  // let movieTest;
+  // let reviewTest;
 
-
-  describe('unauthed GET users', function(){
-    let data;
     before(done => {
-      // data.save();
       new User(mockUser).save()
       .then(user => {
-        data = user;
-      });
-      done();
+        userTest = user;
+        userTest.save();
+
+      })
+      .then(() => done());
     });
     after(done => {
       User.remove({})
       .then(() => done())
       .catch(done);
     });
-
-    it('display a list of user IDs', function(done) {
+    it('will return an array of ONLY USER IDs', function(done){
       request.get(`${url}/users`)
-      .end( (err, res) => {
+      .end((err, res) => {
         expect(res.status).to.equal(200);
         expect(Array.isArray(res.body)).to.equal(true);
-        expect(res.body[0]).to.equal(data._id.toString());
+        expect(res.body[0].id).to.equal(this.id);
         done();
       });
     });
-    it('should get a specific user ID info', function(done) {
-      request.get(`${url}/users/${data._id}`)
+    it('will Error if invalid url given', function(done) {
+      request.get(`${url}/games`)
+      .end((err, res) => {
+        expect(res.status).to.equal(404);
+        done();
+      });
+    });
+    it('Will give error for invalid USER ID', function(done) {
+      request.get(`${url}/users/5555`)
+      .end((err, res) => {
+        expect(res.status).to.equal(400);
+        done();
+      });
+    });
+    it('Will Give Additional USER INFO', function(done) {
+      request.get(`${url}/users/${userTest._id}`)
+      // console.log(userTest._id)
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.username).to.equal('testName');
-        expect(res.body.password).to.equal('testPassword');
-        expect(res.body.email).to.equal('test@testies.test');
-        expect(typeof res.body).to.equal(typeof []);
+        expect(res.body.username).to.equal('testyMctesterson');
+        // expect(res.body.password).to.equal();
+        expect(res.body.email).to.equal('test@testy.test');
+        expect(Array.isArray(res.body.reviews)).to.equal(true);
+        expect(Array.isArray(res.body.favMovies)).to.equal(false);
         done();
       });
     });
   });
+
 
 });
