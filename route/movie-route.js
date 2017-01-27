@@ -80,7 +80,7 @@ router.get('/favorites', bearerAuth, (req, res) => {
     .catch(() => res.status(400).send('bad request'));
 });
 
-router.get('/movies/:id/add', bearerAuth, (req, res) => {
+router.put('/movies/:id/add', bearerAuth, (req, res) => {
   Movie.findById(req.params.id)
     .then(movie => {
       req.user.favMovies.push(movie);

@@ -269,4 +269,43 @@ describe('a movie module', function() {
       });
     });
   });
+
+  describe('will show favorites list', function() {
+    describe('/favorites', function() {
+      let data;
+      let tokenData;
+      before(done => {
+        new Movie(testMovie).save()
+          .then( movie => {
+            data = movie;
+            new User(testUser).save()
+              .then(user => {
+                user.favMovies.push(data);
+                return user.save();
+              })
+              .then(user => user.generateToken())
+              .then(token => {
+                tokenData = token;
+                done();
+              });
+          });
+      });
+      after(done => {
+        Movie.remove({})
+              .then(() => User.remove({}))
+              .then(() => done())
+              .catch(done);
+      });
+      it('will show all of a users favorite movies', function(done) {
+        request.get(`${url}/favorites`)
+            .set('Authorization', 'Bearer ' + tokenData)
+            .end((err, res) => {
+              console.log(res.body);
+              expect(res.status).to.equal(200);
+              expect(res.body[0].original_title).to.equal('Test');
+              done();
+            });
+      });
+    });
+  });
 });
