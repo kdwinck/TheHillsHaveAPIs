@@ -70,18 +70,17 @@ userRouter.get('/users',(req, res) => {
 
 userRouter.get('/users/:id', (req, res) => {
   console.log('inside unauth user/id route');
-  console.log(req.params);
-
-  User.findById({})
-  .populate('movies')
+  User.findById(req.params.id).lean()
   .populate('reviews')
   .then(user => {
-    console.log(req.params);
     // console.log(user);
-    // delete user.password;
-    // console.log(user.password);
-    res.send(user);
-  });
+    delete user.password;
+    delete user.favMovies;
+    delete user.addDate;
+    console.log(user);
+    return res.json(user);
+  })
+  .catch(() => res.status(400).send('user not found'));
 });
 // AUTHORIZED ROUTES //////////////////////////////////////////////////////
 
