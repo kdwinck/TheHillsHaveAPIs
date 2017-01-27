@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 process.env.MONGODB_URI = 'mongodb://localhost/devMidtermTest';
 const url = 'http://localhost:3000';
 
+
 const mockReview = {
   rating: 10,
   reviewText: 'test review',
@@ -56,23 +57,111 @@ describe('should start and kill server per unit test', function(){
   });
   describe('testing unauthed GET for user\'s reviews', function(){
     //before anything, setup server and insert reviews into a user property (array) of reviews. so, must instantiate a new Review object with the mockReview object, as well as instantiate a new User object with mockUser
-    before('instantiate Review schema with mockReview', function(){
+    //'instantiate Review schema with mockReview'
+    let reviewTest;
+    let movieTest;
+    let userTest;
 
-    })
-    after('')
-    describe('/user/:id/reviews', function(done){
-      it('will return an array of user reviews'), done => {
-        request.get(`${url}/user/${req.params.id}/reviews`)
-        .end((err, res) => {
-          expect(res.status).to.equal(200);
-          console.log(res.body);
-          expect(res.body).to.equal();
-        })
-      };
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        userTest = user;
+        return new Movie(mockMovie).save();
+      })
+      .then(movie => {
+        movieTest = movie;
+        return new Review(mockReview).save();
+      })
+      .then(review => {
+        reviewTest = review;
+        userTest.favMovies.push(movieTest);
+        userTest.reviews.push(reviewTest);
+        userTest.save();
+      })
+      .then(() => done());
+    });
+    after(done => {
+      User.remove({})
+      .then(() => Movie.remove({}))
+      .then(() => Review.remove({}))
+      .then(() => done())
+      .catch(done);
+    });
+    it('will return an array of user reviews', function(done) {
+      request.get(`${url}/user/${userTest._id}/reviews`)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(Array.isArray(res.body)).to.equal(true);
+        expect(res.body[0].reviewText).to.equal('test review');
+        done();
+      });
+    });
+  });
+  //second route
+  describe('authed GET for user/reviews', function(){
+    let tokenVariable;
+//instantiate schemas with mock objects
+//could restructure to instantiate review, set reviewTest variable, save, then instantiate movie and set movieTest, save movie, instantiate user, push the variables, call .generateToken, set that to tokenVariable, save new User with all those properties?
+    before(done => {
+      let movieTest;
+      let userTest;
+      new User(mockUser).save()
+      .then(user => {
+        userTest = user;
+        return user.generateToken();
+      })
+      .then(token => {
+        tokenVariable = token;
+        console.log('tokenVariable: ', tokenVariable);
+      })
+      .then(() => new Movie(mockMovie).save())
+      .then(movie => {
+        movieTest = movie;
+        return new Review(mockReview).save();
+      })
+      .then(review => {
+        userTest.favMovies.push(movieTest);
+        userTest.reviews.push(review);
+        userTest.save();
+      })
+      .then(() => done());
+    });
+    //remove items from collections
+    after(done => {
+      User.remove({})
+      .then(() => Movie.remove({}))
+      .then(() => Review.remove({}))
+      .then(() => done())
+      .catch(done);
+    });
+    it('will return an array of user reviews', function(done) {
+      request.get(`${url}/user/reviews`)
+      .set('Authorization', 'Bearer ' + tokenVariable)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body[0].reviewText).to.equal('test review');
+        done();
+      });
     });
   });
 });
 
+
+//2nd it block
+//create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
+//not tested - requires review relationship and route first?
+// reviewRouter.get('/user/reviews', bearerAuth, (req, res, next) => {
+//   console.log('inside authed user movie reviews');
+//   User.findById(req.user._id)
+//   .populate('reviews')
+//   .then(user => {
+//     console.log(user);
+//     return res.send(user.reviews);
+//   })
+//   .catch(err => next(err));
+// });
+
+//1st it block
 // reviewRouter.get('/user/:id/reviews', (req, res, next) => {
 //   console.log('inside /user/:id/reviews');
 //   User.findById(req.params.id)
