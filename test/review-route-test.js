@@ -101,7 +101,6 @@ describe('should start and kill server per unit test', function(){
   describe('authed GET for user/reviews', function(){
     let tokenVariable;
 //instantiate schemas with mock objects
-//could restructure to instantiate review, set reviewTest variable, save, then instantiate movie and set movieTest, save movie, instantiate user, push the variables, call .generateToken, set that to tokenVariable, save new User with all those properties?
     before(done => {
       let movieTest;
       let userTest;
@@ -143,8 +142,78 @@ describe('should start and kill server per unit test', function(){
       });
     });
   });
+  describe('authed DELETE will return response of 204', function(){
+    let tokenVariable;
+    let movieTest;
+    let userTest;
+    let reviewTest;
+//instantiate schemas with mock objects for deletion
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        userTest = user;
+        return user.generateToken();
+      })
+      .then(token => {
+        tokenVariable = token;
+      })
+      .then(() => new Movie(mockMovie).save())
+      .then(movie => {
+        movieTest = movie;
+        return new Review(mockReview).save();
+      })
+      .then(review => {
+        reviewTest = review;
+        userTest.favMovies.push(movieTest);
+        userTest.reviews.push(reviewTest);
+        userTest.save();
+      })
+      .then(() => done());
+    });
+    //remove items from collections
+    after(done => {
+      User.remove({})
+      .then(() => Movie.remove({}))
+      .then(() => Review.remove({}))
+      .then(() => done())
+      .catch(done);
+    });
+    it('will delete a review and return a status of 204', function(done){
+      request.delete(`${url}/movies/${movieTest._id}/reviews/${reviewTest._id}`)
+      .set('Authorization', 'Bearer ' + tokenVariable)
+      .end((err, res) => {
+        expect(res.status).to.equal(204);
+        done();
+      });
+    });
+  });
 });
 
+//3rd block
+
+//create authed DELETE for a user to delete a single review for a specific movie
+// DELETE movies/:id/reviews - and call .updateRating from movieSchema, push new value and save?
+//not tested - requires review relationship and route first?
+// reviewRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res, next) => {
+//   console.log('inside authed DELETE route to delete a user specific review on a movie object');
+//   let reviewIndex;
+//   Movie.findById(req.params.movieId) //express knows that anything after a colon is a property/variable on the params object
+//   .then(movie => {
+//     console.log(movie);
+//     reviewIndex = movie.reviews.indexOf(req.params.reviewId);
+//     console.log('reviewIndex : ', reviewIndex);
+//     movie.reviews.splice(reviewIndex, 1);
+//     return movie.save();
+//   })
+//   // .then(() => {
+//   //   Review.findById(req.params.reviewId);
+//   // })
+//   .then(() => Review.remove({_id:req.params.reviewId}))
+//   .then(() => res.status(204).send(`${reviewIndex} deleted`))
+//   .catch(err => next(err));
+// });
+
+//--------------------------------------------------------------------------------------------
 
 //2nd it block
 //create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
