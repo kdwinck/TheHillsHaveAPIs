@@ -1,15 +1,15 @@
 'use strict';
 
-let expect = require('chai').expect;
-let request = require('superagent');
-// let mongoose = require('mongoose');
+const expect = require('chai').expect;
+const request = require('superagent');
 
-let Movie = require('../model/movie');
-let Review = require('../model/review');
-let User = require('../model/user');
+const Movie = require('../model/movie');
+const Review = require('../model/review');
+const User = require('../model/user');
 
-let url = 'http://localhost:3000';
-// let PORT = process.env.PORT || 3000;
+const url = 'http://localhost:3000';
+const PORT = process.env.PORT || 3000;
+const server = require('../server');
 
 require('../server');
 
@@ -33,21 +33,26 @@ let testUser = {
 };
 
 describe('a movie module', function() {
-  // before('start the server', function(done) {
-  //   if(server.isListening === false){
-  //     server.listen(PORT, function(){
-  //       server.isListening = true;
-  //       done();
-  //     });
-  //   } else {
-  //     done();
-  //   }
-  // });
-  // after('should turn the server off', function(done) {
-  //   server.isListening = false;
-  //   server.close();
-  //   done();
-  // });
+  before('start the server', function(done){
+    if(server.isRunning === false){
+      server.listen(PORT, function(){
+        server.isRunning = true;
+        done();
+      });
+    } else {
+      done();
+    }
+  });
+  after('should turn the server off', function(done){
+    server.close((err) => {
+      server.isRunning = false;
+      if(err){
+        done(err);
+      } else {
+        done();
+      }
+    });
+  });
 
   describe('GET', function() {
 
@@ -62,7 +67,7 @@ describe('a movie module', function() {
           .catch(done);
       });
 
-      it('will return an array of movie objects', done => {
+      it('will return an array of movie objects', function(done) {
         request.get(`${url}/movies`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
@@ -88,7 +93,7 @@ describe('a movie module', function() {
           .catch(done);
       });
 
-      it('will return a movie object', done => {
+      it('will return a movie object', function(done) {
         request.get(`${url}/movies/${data._id}`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
@@ -99,7 +104,7 @@ describe('a movie module', function() {
             done();
           });
       });
-      it('will return 404 if incorrect movie ID provided', done => {
+      it('will return 404 if incorrect movie ID provided', function(done) {
         request.get(`${url}/movies/1234`)
           .end( (err, res) => {
             expect(res.status).to.equal(404);
@@ -124,7 +129,7 @@ describe('a movie module', function() {
           .catch(done);
       });
 
-      it('will return a movie object', done => {
+      it('will return a movie object', function(done) {
         request.get(`${url}/movies/title/${data.original_title}`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
@@ -136,7 +141,7 @@ describe('a movie module', function() {
             done();
           });
       });
-      it('will return 404 if incorrect movie title provided', done => {
+      it('will return 404 if incorrect movie title provided', function(done) {
         request.get(`${url}/movies/title/laksjdf;lajs`)
           .end( (err, res) => {
             expect(res.status).to.equal(404);
@@ -167,7 +172,7 @@ describe('a movie module', function() {
           .catch(done);
       });
 
-      it('will return a list of reviews for that movie', done => {
+      it('will return a list of reviews for that movie', function(done) {
         request.get(`${url}/movies/${movieData._id}/reviews`)
           .end( (err, res) => {
             expect(res.status).to.equal(200);
@@ -176,7 +181,7 @@ describe('a movie module', function() {
             done();
           });
       });
-      it('will return 404 if incorrect or no movie id provided', done => {
+      it('will return 404 if incorrect or no movie id provided', function(done) {
         request.get(`${url}/movies/1343850948/reviews`)
           .end( (err, res) => {
             expect(res.status).to.equal(404);
@@ -212,7 +217,7 @@ describe('a movie module', function() {
           .catch(done);
       });
 
-      it('will create a new review', done => {
+      it('will create a new review', function(done) {
         request.post(`${url}/movies/${movieData._id}/reviews`)
           .send(testReview)
           .set('Authorization', 'Bearer ' + tokenData)
@@ -223,12 +228,42 @@ describe('a movie module', function() {
             done();
           });
       });
-      it('will return 400 if no auth header is present', done => {
+      it('will return 400 if no auth header is present', function(done) {
         request.post(`${url}/movies/${movieData._id}/reviews`)
           .send(testReview)
           .end( (err, res) => {
             expect(res.status).to.equal(400);
-            expect(res.body.msg).to.equal('no auth header');
+            expect(res.text).to.equal('no auth header');
+            done();
+          });
+      });
+      it('will return 400 if token error', function(done) {
+        request.post(`${url}/movies/${movieData._id}/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer')
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('token error');
+            done();
+          });
+      });
+      it('will return 404 if incorrect movie ID', function(done) {
+        request.post(`${url}/movies/12345/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end( (err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.text).to.equal('movie not found');
+            done();
+          });
+      });
+      it('will return 500 for a server error', function(done) {
+        request.post(`${url}/movies/${movieData._id}/reviews`)
+          .send(testReview)
+          .set('Authorization', 'Bearer ' + 12345)
+          .end( (err, res) => {
+            expect(res.status).to.equal(500);
+            expect(res.text).to.equal('server error');
             done();
           });
       });

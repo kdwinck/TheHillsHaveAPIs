@@ -2,6 +2,7 @@
 
 const jsonParser = require('body-parser').json();
 const Router = require('express').Router;
+const createError = require('http-errors');
 
 const Movie = require('../model/movie.js');
 const User = require('../model/user');
@@ -43,27 +44,27 @@ router.get('/movies/:id/reviews', (req, res) => {
 
 /// auth routes /////////////////////////////////////////////////////////////
 
-router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
-  if (req.params.id) {
-    let newReview;
-    Movie.findById(req.params.id)
+router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
+  let newReview;
+  let testMovie;
+  Movie.findById(req.params.id)
     .then(movie => {
-      new Review(req.body).save()
-      .then(review => {
-        newReview = review;
-        req.user.reviews.push(review);
-        req.user.save()
-          .then(() => {
-            movie.reviews.push(review);
-            movie.save();
-          });
-      })
-      .then(() => res.json(newReview))
-      .catch(() => res.status(400).send('no id provided'));
+      testMovie = movie;
+      return new Review(req.body).save();
+    })
+    .then(review => {
+      newReview = review;
+      req.user.reviews.push(newReview);
+      return req.user.save();
+    })
+    .then(() => {
+      testMovie.reviews.push(newReview);
+      testMovie.save();
+    })
+    .then(() => res.json(newReview))
+    .catch(() => {
+      next(createError(404, 'movie not found'));
     });
-  } else {
-    console.log('else');
-  }
 });
 
 router.get('/favorites', bearerAuth, (req, res) => {
@@ -82,8 +83,6 @@ router.get('/favorites', bearerAuth, (req, res) => {
 router.get('/movies/:id/add', bearerAuth, (req, res) => {
   Movie.findById(req.params.id)
     .then(movie => {
-      console.log(movie);
-      console.log(req.user);
       req.user.favMovies.push(movie);
       return req.user.save();
     })

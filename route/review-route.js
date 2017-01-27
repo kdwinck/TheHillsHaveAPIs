@@ -12,7 +12,6 @@ const Movie = require('../model/movie');
 //create unauthed GET user/:id/reviews inside user-routes to get ALL user's reviews (first the client has to GET an id from hitting the /users endpoint and use an id from a created/signed up user)
 //not tested - requires review relationship and route first?
 reviewRouter.get('/user/:id/reviews', (req, res, next) => {
-  console.log('inside /user/:id/reviews');
   User.findById(req.params.id)
   .populate('reviews')
   .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
@@ -22,11 +21,9 @@ reviewRouter.get('/user/:id/reviews', (req, res, next) => {
 //create authed GET /reviews which shows all user reviews they have written (kyle is working on POST users/:id/movies/:id/reviews which allows users to POST a review.)
 //not tested - requires review relationship and route first?
 reviewRouter.get('/user/reviews', bearerAuth, (req, res, next) => {
-  console.log('inside authed user movie reviews');
   User.findById(req.user._id)
   .populate('reviews')
   .then(user => {
-    console.log(user);
     return res.send(user.reviews);
   })
   .catch(err => next(err));
@@ -36,13 +33,10 @@ reviewRouter.get('/user/reviews', bearerAuth, (req, res, next) => {
 // DELETE movies/:id/reviews - and call .updateRating from movieSchema, push new value and save?
 //not tested - requires review relationship and route first?
 reviewRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res, next) => {
-  console.log('inside authed DELETE route to delete a user specific review on a movie object');
   let reviewIndex;
   Movie.findById(req.params.movieId) //express knows that anything after a colon is a property/variable on the params object
   .then(movie => {
-    console.log(movie);
     reviewIndex = movie.reviews.indexOf(req.params.reviewId);
-    console.log('reviewIndex : ', reviewIndex);
     movie.reviews.splice(reviewIndex, 1);
     return movie.save();
   })
