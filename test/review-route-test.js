@@ -91,30 +91,37 @@ describe('should start and kill server per unit test', function(){
       request.get(`${url}/user/${userTest._id}/reviews`)
       .end((err, res) => {
         expect(res.status).to.equal(200);
+        expect(Array.isArray(res.body)).to.equal(true);
         expect(res.body[0].reviewText).to.equal('test review');
         done();
       });
     });
   });
+  //second route
   describe('authed GET for user/reviews', function(){
-    let reviewTest;
-    let movieTest;
-    let userTest;
+    let tokenVariable;
 //instantiate schemas with mock objects
+//could restructure to instantiate review, set reviewTest variable, save, then instantiate movie and set movieTest, save movie, instantiate user, push the variables, call .generateToken, set that to tokenVariable, save new User with all those properties?
     before(done => {
+      let movieTest;
+      let userTest;
       new User(mockUser).save()
       .then(user => {
         userTest = user;
-        return new Movie(mockMovie).save();
+        return user.generateToken();
       })
+      .then(token => {
+        tokenVariable = token;
+        console.log('tokenVariable: ', tokenVariable);
+      })
+      .then(() => new Movie(mockMovie).save())
       .then(movie => {
         movieTest = movie;
         return new Review(mockReview).save();
       })
       .then(review => {
-        reviewTest = review;
         userTest.favMovies.push(movieTest);
-        userTest.reviews.push(reviewTest);
+        userTest.reviews.push(review);
         userTest.save();
       })
       .then(() => done());
@@ -128,7 +135,8 @@ describe('should start and kill server per unit test', function(){
       .catch(done);
     });
     it('will return an array of user reviews', function(done) {
-      request.get(`${url}/user/${userTest._id}/reviews`)
+      request.get(`${url}/user/reviews`)
+      .set('Authorization', 'Bearer ' + tokenVariable)
       .end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body[0].reviewText).to.equal('test review');
