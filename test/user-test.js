@@ -108,9 +108,8 @@ describe('should start and kill server per unit test', function(){
         expect(Array.isArray(res.body.reviews)).to.equal(true);
         expect(Array.isArray(res.body.favMovies)).to.equal(false);
         done();
-
-      })
-    })
+      });
+    });
   });
 
 
