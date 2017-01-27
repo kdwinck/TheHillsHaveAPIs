@@ -72,7 +72,7 @@ userRouter.get('/users/:id', (req, res) => {
   console.log('inside unauth user/id route');
   console.log(req.params);
 
-  User.findById(req.params.id)
+  User.findById({})
   .populate('movies')
   .populate('reviews')
   .then(user => {
@@ -88,12 +88,14 @@ userRouter.get('/users/:id', (req, res) => {
 userRouter.get('/auth-users', bearerAuth, (req, res) => {
   console.log('inside auth get users');
   User.find({})
-  .populate('movies')
-  .populate('reviews')
-  .then(user => {
-    console.log(user);
-    res.send(user);
-  });
+  // .populate('favMovies', 'original_title')
+  .then(() =>  {
+    return User.findById(req.user._id)
+    .populate('favMovies', 'original_title')
+    .populate('reviews');
+  })
+  .then(user => res.json(user))
+  .catch(() => res.status(400).send('bad request'));
 });
 
 userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
