@@ -35,7 +35,7 @@ router.get('/movies/title/:title', (req, res) => {
     .catch(() => res.status(404).send('movie not found'));
 });
 
-router.get('/movies/:id/reviews', (req, res, next) => {
+router.get('/movies/:id/reviews', (req, res) => {
   Movie.findById(req.params.id)
     .populate('reviews')
     .then(movie => res.json(movie.reviews))
