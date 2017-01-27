@@ -14,6 +14,7 @@ const Movie = require('../model/movie');
 reviewRouter.get('/user/:id/reviews', (req, res, next) => {
   console.log('inside /user/:id/reviews');
   User.findById(req.params.id)
+  .populate('reviews')
   .then(user => res.send(user.reviews))//should respond with an array of all user review comments.
   .catch(err => next(err));
 });
