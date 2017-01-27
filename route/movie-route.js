@@ -46,23 +46,25 @@ router.get('/movies/:id/reviews', (req, res) => {
 router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res) => {
   if (req.params.id) {
     let newReview;
+    let testMovie;
     Movie.findById(req.params.id)
-    .then(movie => {
-      new Review(req.body).save()
+      .then(movie => {
+        testMovie = movie;
+        return new Review(req.body).save();
+      })
       .then(review => {
         newReview = review;
         req.user.reviews.push(review);
-        req.user.save()
-          .then(() => {
-            movie.reviews.push(review);
-            movie.save();
-          });
+        return req.user.save();
+      })
+      .then(() => {
+        testMovie.reviews.push(newReview);
+        testMovie.save();
       })
       .then(() => res.json(newReview))
-      .catch(() => res.status(400).send('no id provided'));
-    });
+      .catch(() => res.status(404).send('not found'));
   } else {
-    console.log('else');
+    res.status(400).json({msg: 'bad request'});
   }
 });
 
