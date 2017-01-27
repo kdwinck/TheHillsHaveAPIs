@@ -45,7 +45,6 @@ router.get('/movies/:id/reviews', (req, res) => {
 /// auth routes /////////////////////////////////////////////////////////////
 
 router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
-  console.log('in route');
   let newReview;
   let testMovie;
   Movie.findById(req.params.id)
@@ -64,7 +63,7 @@ router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
     })
     .then(() => res.json(newReview))
     .catch(() => {
-      next(createError(400, 'bad ID'));
+      next(createError(404, 'movie not found'));
     });
 });
 
@@ -84,8 +83,6 @@ router.get('/favorites', bearerAuth, (req, res) => {
 router.get('/movies/:id/add', bearerAuth, (req, res) => {
   Movie.findById(req.params.id)
     .then(movie => {
-      console.log(movie);
-      console.log(req.user);
       req.user.favMovies.push(movie);
       return req.user.save();
     })

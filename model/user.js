@@ -47,9 +47,7 @@ userSchema.methods.generateToken = function() {
 
 //this is for a login route. we need it to check against a saved user in our db
 userSchema.methods.compareHashPassword = function(password){
-  console.log('in hash password');
   return new Promise((resolve, reject) => {
-    console.log('inside promise');
     bcrypt.compare(password, this.password, (err, valid) => {
       if(err) return reject(err);
       if(!valid) return reject(createError(401, 'wrong password'));
