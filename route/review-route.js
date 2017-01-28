@@ -47,35 +47,3 @@ reviewRouter.delete('/movies/:movieId/reviews/:reviewId', bearerAuth, (req, res,
   .then(() => res.status(204).send(`${reviewIndex} deleted`))
   .catch(err => next(err));
 });
-
-
-//TO DO: authed POST to add movie to favMovie array prop
-//
-
-//TO DO: authed GET to get movies from favMovie array prop
-
-
-//TO DO: authed DELETE to remove movie to favMovie array prop
-
-
-// router.post('/movies/:id/reviews', jsonParser, bearerAuth, (req, res, next) => {
-//   let newReview;
-//   let reviewMovie;
-//   Movie.findById(req.params.id)
-//   .then(movie => {
-//     reviewMovie = movie;
-//     console.log(req.body);
-//     return new Review(req.body).save();
-//   })
-//   .then(reviewForFoundMovie => {
-//     newReview = reviewForFoundMovie;
-//     req.user.reviews.push(reviewForFoundMovie);
-//     return req.user.save();
-//   })
-//   .then(() => {
-//     reviewMovie.reviews.push(newReview);
-//     return reviewMovie.save();
-//   })
-//   .then(() => res.send(newReview))
-//   .catch(err => next(err));
-// });
