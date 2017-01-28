@@ -85,7 +85,7 @@ userRouter.get('/auth-users', bearerAuth, (req, res) => {
     .populate('reviews')
     .then(users => {
       return users.map(function(user) {
-        return {username: user.username, email: user.email, reviews: user.reviews, favMovies: user.favMovies};
+        return {id: user._id, username: user.username, email: user.email, reviews: user.reviews, favMovies: user.favMovies};
       });
     })
     .then(mapped => res.json(mapped))

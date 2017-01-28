@@ -157,10 +157,19 @@ describe('should start and kill server per unit test', function(){
         });
     });
     it('will return 400 if no auth header is present', function(done) {
-      request.post(`${url}/auth-users`)
+      request.get(`${url}/auth-users`)
         .end( (err, res) => {
           expect(res.status).to.equal(400);
           expect(res.text).to.equal('no auth header');
+          done();
+        });
+    });
+    it('will return 500 for a server error', function(done) {
+      request.get(`${url}/auth-users`)
+        .set('Authorization', 'Bearer ' + 12345)
+        .end( (err, res) => {
+          expect(res.status).to.equal(500);
+          expect(res.text).to.equal('server error');
           done();
         });
     });
