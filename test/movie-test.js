@@ -374,4 +374,65 @@ describe('a movie module', function() {
       });
     });
   });
+  describe('DELETE', function() {
+    describe('/movies/:id/delete', function() {
+      let movieData;
+      let tokenData;
+      beforeEach(done => {
+        new Movie(testMovie).save()
+          .then(movie => {
+            movieData = movie;
+            new User(testUser).save()
+              .then(user => user.generateToken())
+              .then(token => {
+                tokenData = token;
+                done();
+              });
+          });
+      });
+      afterEach(done => {
+        Movie.remove({})
+          .then(() => User.remove({}))
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('will delete a movie form a users favorite movies list', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.favMovies).to.eql([]);
+            expect(res.body.username).to.equal('Kyle');
+            done();
+          });
+      });
+      it('will return 400 if no auth header is present', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('no auth header');
+            done();
+          });
+      });
+      it('will return 400 if token error', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer')
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('token error');
+            done();
+          });
+      });
+      it('will return 500 for a server error', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer ' + 12345)
+          .end( (err, res) => {
+            expect(res.status).to.equal(500);
+            expect(res.text).to.equal('server error');
+            done();
+          });
+      });
+    });
+  });
 });

@@ -112,14 +112,14 @@ http://localhost:3000/favorites
 ```
 
 ### PUT /movies/:id/add
-This allows the logged in user to add a movie to their favorite movies list.
+This allows the logged in user to add a movie to their favorite movies list. It will return the updated user.
 
 ```
 curl -H "Authorization: Bearer <your token>" -X PUT  http://localhost:3000/movies/12345/add
 ```
 
 ### DELETE /movies/:id/DELETE
-This allows the logged in user to delete a movie from their favorite movies list.
+This allows the logged in user to delete a movie from their favorite movies list. It will return the updated user.
 
 ```
 curl -H "Authorization: Bearer <your token>" -X DELETE http://localhost:3000/movies/12345/delete
