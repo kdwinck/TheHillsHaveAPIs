@@ -29,7 +29,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
   });
 });
 
-//authorize login
+//authorized login
 userRouter.get('/login', basicAuth, (req, res, next) => {
   if(!req.auth.username) {
     return res.status(400).send('no username');
@@ -47,9 +47,10 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
   })
   .catch(next);
 });
+
+
 // UNAUTHORIZED ROUTES ////////////////////////////////////////////////////
 // Prints out a list of all users
-
 userRouter.get('/users',(req, res) => {
   User.find({})
   // .populate('movies')
@@ -80,17 +81,16 @@ userRouter.get('/users/:id', (req, res) => {
 
 userRouter.get('/auth-users', bearerAuth, (req, res) => {
   User.find({})
-  // .populate('favMovies', 'original_title')
-  .then(() =>  {
-    return User.findById(req.user._id)
     .populate('favMovies', 'original_title')
-    .populate('reviews');
-  })
-  .then(user => res.json(user))
-  .catch(() => res.status(400).send('bad request'));
+    .populate('reviews')
+    .then(users => {
+      console.log(users);
+      res.json(users);
+    })
+    .catch(() => res.status(400).send('bad request'));
 });
 
-userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
+userRouter.put('/users', jsonParser, bearerAuth, (req, res) => {
   User.findByIdAndUpdate(req.user.id, req.body)
   .then(user => user.hashPassword(req.body.password))
   .then(user => {
@@ -104,7 +104,7 @@ userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
   });
 });
 
-userRouter.delete('/users/', bearerAuth, (req, res) => {
+userRouter.delete('/users', bearerAuth, (req, res) => {
   User.findByIdAndRemove(req.user.id)
   .then(user => res.json(user))
   .catch(e => {

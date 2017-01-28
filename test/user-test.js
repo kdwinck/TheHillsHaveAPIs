@@ -4,14 +4,11 @@ const server = require('../server');
 const request = require('superagent');
 const expect = require('chai').expect;
 const User = require('../model/user');
-// const Review = require('../model/review');
-// const Movie = require('../model/movie');
 require('../server');
 
 const PORT = process.env.PORT || 3000;
-process.env.MONGODB_URI = 'mongodb://localhost/devMidtermTest';
+// process.env.MONGODB_URI = 'mongodb://localhost/devMidtermTest';
 const url = 'http://localhost:3000';
-
 
 const mockReview = {
   rating: 10,
@@ -57,15 +54,11 @@ describe('should start and kill server per unit test', function(){
   });
   describe('Un-Auth /GET for users', function() {
     let userTest;
-  // let movieTest;
-  // let reviewTest;
-
     before(done => {
       new User(mockUser).save()
       .then(user => {
         userTest = user;
         userTest.save();
-
       })
       .then(() => done());
     });
@@ -90,13 +83,6 @@ describe('should start and kill server per unit test', function(){
         done();
       });
     });
-    it('Will give error for invalid USER ID', function(done) {
-      request.get(`${url}/users/5555`)
-      .end((err, res) => {
-        expect(res.status).to.equal(400);
-        done();
-      });
-    });
     it('Will Give Additional USER INFO', function(done) {
       request.get(`${url}/users/${userTest._id}`)
       // console.log(userTest._id)
@@ -111,6 +97,65 @@ describe('should start and kill server per unit test', function(){
       });
     });
   });
+  describe('/users/:id', function() {
+    let userTest;
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        userTest = user;
+        userTest.save();
+      })
+      .then(() => done());
+    });
+    after(done => {
+      User.remove({})
+      .then(() => done())
+      .catch(done);
+    });
+    it('will return the requested user with limitied information', function(done){
+      request.get(`${url}/users/${userTest._id}`)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        expect(res.body._id).to.equal(userTest.id);
+        expect(res.body.username).to.equal('testyMctesterson');
+        done();
+      });
+    });
+    it('Will give error for invalid USER ID', function(done) {
+      request.get(`${url}/users/5555`)
+      .end((err, res) => {
+        expect(res.status).to.equal(400);
+        done();
+      });
+    });
+  });
 
+  describe('/auth-users', function() {
+    let tokenData;
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        user.generateToken();
+      })
+      .then(token => {
+        tokenData = token;
+        done();
+      });
+    });
+    after(done => {
+      User.remove({})
+      .then(() => done())
+      .catch(done);
+    });
 
+    it('will return all users full public information', function(done) {
+      request.get(`${url}/auth-users`)
+        .set('Authorization', 'Bearer ' + tokenData)
+        .end( (err, res) => {
+          console.log(res.body);
+          expect(res.status).to.equal(200);
+          done();
+        });
+    });
+  });
 });
