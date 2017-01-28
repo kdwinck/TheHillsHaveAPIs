@@ -56,7 +56,7 @@ describe('should start and kill server per unit test', function(){
     });
   });
   describe('Un-Auth /GET for users', function() {
-  let userTest;
+    let userTest;
   // let movieTest;
   // let reviewTest;
 

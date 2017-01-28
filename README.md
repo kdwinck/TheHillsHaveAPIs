@@ -12,7 +12,7 @@ can create an authenticated account to find movies, add them to their list of fa
 
 
 ### Three Schemas:
-All data is created using mongo and stored remotely using on MLab
+All data is created using mongo and stored remotely on MLab
 
 - User - all users that have signed up for the api
 - Movie - all movies in the api database
@@ -168,7 +168,7 @@ curl -H "Authorization: Bearer <your token>" -X DELETE http://localhost:3000/mov
 
 
 #### Testing
-
+Testing was done using gulp, mocha, and superagent.
 
 ## Attribution
 ![TMDB Logo](https://www.themoviedb.org/assets/static_cache/2dceae11589334eecd61443249261daf/images/v4/logos/208x226-stacked-green.png)

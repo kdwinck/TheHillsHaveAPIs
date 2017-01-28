@@ -25,7 +25,7 @@ movieSchema.methods.calcRating = function() {
       this.save().then(resolve(this));
     }
     resolve(this);
-    reject('poopoo');
+    reject('error');
   });
 };
 
