@@ -80,7 +80,7 @@ router.get('/favorites', bearerAuth, (req, res) => {
     .catch(() => res.status(400).send('bad request'));
 });
 
-router.put('/movies/:id/add', bearerAuth, (req, res) => {
+router.put('/movies/:id/add', bearerAuth, (req, res, next) => {
   Movie.findById(req.params.id)
     .then(movie => {
       req.user.favMovies.push(movie);
@@ -91,13 +91,17 @@ router.put('/movies/:id/add', bearerAuth, (req, res) => {
       .populate('favMovies', 'original_title');
     })
     .then(user => res.json(user))
-    .catch(() => res.status(400).send('bad request'));
+    .catch(() => {
+      next(createError(404, 'movie not found'));
+    });
 });
 
-router.delete('/movies/:id/delete', bearerAuth, (req, res) => {
+router.delete('/movies/:id/delete', bearerAuth, (req, res, next) => {
   let movieIndex = req.user.favMovies.indexOf(req.params.id);
   req.user.favMovies.splice(movieIndex, 1);
   req.user.save()
-    .then(() => res.json(req.user.favMovies))
-    .catch(() => res.status(400).send('bad request'));
+    .then(() => res.json(req.user))
+    .catch(()=> {
+      next(createError(404, 'movie not found'));
+    });
 });

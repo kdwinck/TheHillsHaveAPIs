@@ -22,16 +22,14 @@ userRouter.post('/signup', jsonParser, (req, res) => {
   .then(user =>  {
     user.save();
     delete req.body.password;
-    console.log(req.body , ' = req.body');
   })
   .then(() => res.send('successful user signup'))
   .catch(err => {
-    console.log(err);
     res.send(err);
   });
 });
 
-//authorize login
+//authorized login
 userRouter.get('/login', basicAuth, (req, res, next) => {
   if(!req.auth.username) {
     return res.status(400).send('no username');
@@ -49,11 +47,11 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
   })
   .catch(next);
 });
+
+
 // UNAUTHORIZED ROUTES ////////////////////////////////////////////////////
 // Prints out a list of all users
-
 userRouter.get('/users',(req, res) => {
-  console.log('inside unauth /users route');
   User.find({})
   // .populate('movies')
   .then(user => {
@@ -63,13 +61,11 @@ userRouter.get('/users',(req, res) => {
     });
   })
   .then(user => {
-    console.log(user);
     res.send(user);
   });
 });
 
 userRouter.get('/users/:id', (req, res) => {
-  console.log('inside unauth user/id route');
   User.findById(req.params.id).lean()
   .populate('reviews')
   .then(user => {
@@ -77,7 +73,6 @@ userRouter.get('/users/:id', (req, res) => {
     delete user.password;
     delete user.favMovies;
     delete user.addDate;
-    console.log(user);
     return res.json(user);
   })
   .catch(() => res.status(400).send('user not found'));
@@ -85,26 +80,24 @@ userRouter.get('/users/:id', (req, res) => {
 // AUTHORIZED ROUTES //////////////////////////////////////////////////////
 
 userRouter.get('/auth-users', bearerAuth, (req, res) => {
-  console.log('inside auth get users');
   User.find({})
-  // .populate('favMovies', 'original_title')
-  .then(() =>  {
-    return User.findById(req.user._id)
     .populate('favMovies', 'original_title')
-    .populate('reviews');
-  })
-  .then(user => res.json(user))
-  .catch(() => res.status(400).send('bad request'));
+    .populate('reviews')
+    .then(users => {
+      return users.map(function(user) {
+        return {id: user._id, username: user.username, email: user.email, reviews: user.reviews, favMovies: user.favMovies};
+      });
+    })
+    .then(mapped => res.json(mapped))
+    .catch(() => res.status(400).send('bad request'));
 });
 
-userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
-  console.log('inside put route');
+userRouter.put('/users', jsonParser, bearerAuth, (req, res) => {
   User.findByIdAndUpdate(req.user.id, req.body)
   .then(user => user.hashPassword(req.body.password))
   .then(user => {
     user.save();
     delete req.body.password;
-    console.log(req.body);
     res.json(user);
   })
   .catch(e => {
@@ -113,8 +106,7 @@ userRouter.put('/users/', jsonParser, bearerAuth, (req, res) => {
   });
 });
 
-userRouter.delete('/users/', bearerAuth, (req, res) => {
-  console.log('inside delete');
+userRouter.delete('/users', bearerAuth, (req, res) => {
   User.findByIdAndRemove(req.user.id)
   .then(user => res.json(user))
   .catch(e => {

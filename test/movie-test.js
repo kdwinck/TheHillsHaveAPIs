@@ -190,10 +190,45 @@ describe('a movie module', function() {
           });
       });
     });
+    describe('/favorites', function() {
+      let data;
+      let tokenData;
+      before(done => {
+        new Movie(testMovie).save()
+        .then( movie => {
+          data = movie;
+          new User(testUser).save()
+          .then(user => {
+            user.favMovies.push(data);
+            return user.save();
+          })
+          .then(user => user.generateToken())
+          .then(token => {
+            tokenData = token;
+            done();
+          });
+        });
+      });
+      after(done => {
+        Movie.remove({})
+        .then(() => User.remove({}))
+        .then(() => done())
+        .catch(done);
+      });
+      it('will show all of a users favorite movies', function(done) {
+        request.get(`${url}/favorites`)
+        .set('Authorization', 'Bearer ' + tokenData)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body[0].original_title).to.equal('Test');
+          done();
+        });
+      });
+    });
   });
 
 
-  describe('/POST', function() {
+  describe('POST', function() {
     describe('/movies/:id/reviews', function() {
       let movieData;
       let tokenData;
@@ -270,19 +305,15 @@ describe('a movie module', function() {
     });
   });
 
-  describe('will show favorites list', function() {
-    describe('/favorites', function() {
-      let data;
+  describe('PUT', function() {
+    describe('movies/:id/add', function() {
+      let movieData;
       let tokenData;
-      before(done => {
+      beforeEach(done => {
         new Movie(testMovie).save()
-          .then( movie => {
-            data = movie;
+          .then(movie => {
+            movieData = movie;
             new User(testUser).save()
-              .then(user => {
-                user.favMovies.push(data);
-                return user.save();
-              })
               .then(user => user.generateToken())
               .then(token => {
                 tokenData = token;
@@ -290,21 +321,117 @@ describe('a movie module', function() {
               });
           });
       });
-      after(done => {
+      afterEach(done => {
         Movie.remove({})
-              .then(() => User.remove({}))
-              .then(() => done())
-              .catch(done);
+          .then(() => User.remove({}))
+          .then(() => done())
+          .catch(done);
       });
-      it('will show all of a users favorite movies', function(done) {
-        request.get(`${url}/favorites`)
-            .set('Authorization', 'Bearer ' + tokenData)
-            .end((err, res) => {
-              console.log(res.body);
-              expect(res.status).to.equal(200);
-              expect(res.body[0].original_title).to.equal('Test');
-              done();
-            });
+
+      it('will add a movie to the users favorite movie list', function(done) {
+        request.put(`${url}/movies/${movieData._id}/add`)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end( (err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.favMovies[0].original_title).to.equal('Test');
+            done();
+          });
+      });
+      it('will return 400 if no auth header is present', function(done) {
+        request.put(`${url}/movies/${movieData._id}/add`)
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('no auth header');
+            done();
+          });
+      });
+      it('will return 400 if token error', function(done) {
+        request.put(`${url}/movies/${movieData._id}/add`)
+          .set('Authorization', 'Bearer')
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('token error');
+            done();
+          });
+      });
+      it('will return 404 if incorrect movie ID', function(done) {
+        request.put(`${url}/movies/12345/add`)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end( (err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.text).to.equal('movie not found');
+            done();
+          });
+      });
+      it('will return 500 for a server error', function(done) {
+        request.put(`${url}/movies/${movieData._id}/add`)
+          .set('Authorization', 'Bearer ' + 12345)
+          .end( (err, res) => {
+            expect(res.status).to.equal(500);
+            expect(res.text).to.equal('server error');
+            done();
+          });
+      });
+    });
+  });
+  describe('DELETE', function() {
+    describe('/movies/:id/delete', function() {
+      let movieData;
+      let tokenData;
+      beforeEach(done => {
+        new Movie(testMovie).save()
+          .then(movie => {
+            movieData = movie;
+            new User(testUser).save()
+              .then(user => user.generateToken())
+              .then(token => {
+                tokenData = token;
+                done();
+              });
+          });
+      });
+      afterEach(done => {
+        Movie.remove({})
+          .then(() => User.remove({}))
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('will delete a movie form a users favorite movies list', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer ' + tokenData)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.favMovies).to.eql([]);
+            expect(res.body.username).to.equal('Kyle');
+            done();
+          });
+      });
+      it('will return 400 if no auth header is present', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('no auth header');
+            done();
+          });
+      });
+      it('will return 400 if token error', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer')
+          .end( (err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.text).to.equal('token error');
+            done();
+          });
+      });
+      it('will return 500 for a server error', function(done) {
+        request.delete(`${url}/movies/${movieData._id}/delete`)
+          .set('Authorization', 'Bearer ' + 12345)
+          .end( (err, res) => {
+            expect(res.status).to.equal(500);
+            expect(res.text).to.equal('server error');
+            done();
+          });
       });
     });
   });
