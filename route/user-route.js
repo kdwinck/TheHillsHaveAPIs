@@ -84,9 +84,11 @@ userRouter.get('/auth-users', bearerAuth, (req, res) => {
     .populate('favMovies', 'original_title')
     .populate('reviews')
     .then(users => {
-      console.log(users);
-      res.json(users);
+      return users.map(function(user) {
+        return {username: user.username, email: user.email, reviews: user.reviews, favMovies: user.favMovies};
+      });
     })
+    .then(mapped => res.json(mapped))
     .catch(() => res.status(400).send('bad request'));
 });
 

@@ -7,7 +7,6 @@ const User = require('../model/user');
 require('../server');
 
 const PORT = process.env.PORT || 3000;
-// process.env.MONGODB_URI = 'mongodb://localhost/devMidtermTest';
 const url = 'http://localhost:3000';
 
 const mockReview = {
@@ -135,7 +134,7 @@ describe('should start and kill server per unit test', function(){
     before(done => {
       new User(mockUser).save()
       .then(user => {
-        user.generateToken();
+        return user.generateToken();
       })
       .then(token => {
         tokenData = token;
@@ -152,8 +151,16 @@ describe('should start and kill server per unit test', function(){
       request.get(`${url}/auth-users`)
         .set('Authorization', 'Bearer ' + tokenData)
         .end( (err, res) => {
-          console.log(res.body);
           expect(res.status).to.equal(200);
+          expect(res.body[0].username).to.equal('testyMctesterson');
+          done();
+        });
+    });
+    it('will return 400 if no auth header is present', function(done) {
+      request.post(`${url}/auth-users`)
+        .end( (err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.text).to.equal('no auth header');
           done();
         });
     });
