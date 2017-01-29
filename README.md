@@ -175,8 +175,7 @@ Testing was done using gulp, mocha, and superagent.
 
 "This product uses the TMDb API but is not endorsed or certified by TMDb."
 
-![flow chart](https://drive.google.com/file/d/0B-dk5VYJmwbFRl9qd0RHVU9ZMXc/view?ts=5888f8b0)
 
-(https://googledrive.com/host/0Bdk5VYJmwbFZG9uZjMtcmp1VGM)
+![flow chart](./TheHillsHaveAPIs.png)
 
-https://drive.google.com/file/d/0B-dk5VYJmwbFZG9uZjMtcmp1VGM/view?usp=sharing
+
