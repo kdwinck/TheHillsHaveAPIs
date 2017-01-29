@@ -17,7 +17,7 @@ router.get('/api/getMovies/:page', (req, res) => {
             return {original_title: movie.title, release_date: movie.release_date, overview: movie.overview, rating: 0};
           });
         })
-    .then(db => db.forEach(movie => { ///promisify all the things promise.all???
+    .then(db => db.forEach(movie => { 
       let dbMovie = new Movie(movie);
       dbMovie.save();
     }))

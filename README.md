@@ -18,6 +18,9 @@ All data is created using mongo and stored remotely on MLab
 - Movie - all movies in the api database
 - Review - all reviews created by loggin in users
 
+
+![thehillshaveapis](https://cloud.githubusercontent.com/assets/18372172/22401404/ab684f2a-e586-11e6-97d0-e82d74ae2d0a.png)
+
 # Start-up the Server
 * From the folder root directory:
 ```
@@ -63,6 +66,40 @@ zAyZiIsImlhdCI6MTQ4NTIzNDU4Nn0.DiISI9V6daM17G90zhtFZ7fdcy-KCj6rV_w3Wnsg_II" -H "
 ```
 **This will allow you to be able to see all the other users that have signed up.**  
 
+### GET /users
+This will return all user ID's in the database.
+
+```
+curl http://localhost:3000/users
+```
+
+### GET /users/:id
+This will return a specific user from the database.
+
+```
+curl http://localhost:3000/users/12345
+```
+
+### GET /auth-users
+This is an authorized route that will return all users from the DB with more detailed information.
+
+```
+curl -H "Authorization Bearer <your token>" http://localhost:3000/auth-users
+```
+
+### PUT /users
+This will update a logged in users information.
+
+```
+curl -H "Authorization: Bearer <your token>" -H "Content-type: application/json" -d '{<information you want to update>}' -X PUT http://localhost:3000/auth-users
+```
+
+### DELETE /users
+This will delete the logged in user.
+
+```
+curl -H "Authorization: Bearer <token>" -X DELETE http://localhost:3000/users
+```
 
 ## Movie Routes - Unauthorized
 
@@ -174,6 +211,3 @@ Testing was done using gulp, mocha, and superagent.
 ![TMDB Logo](https://www.themoviedb.org/assets/static_cache/2dceae11589334eecd61443249261daf/images/v4/logos/208x226-stacked-green.png)
 
 "This product uses the TMDb API but is not endorsed or certified by TMDb."
-
-
-![thehillshaveapis](https://cloud.githubusercontent.com/assets/18372172/22401404/ab684f2a-e586-11e6-97d0-e82d74ae2d0a.png)
