@@ -174,3 +174,9 @@ Testing was done using gulp, mocha, and superagent.
 ![TMDB Logo](https://www.themoviedb.org/assets/static_cache/2dceae11589334eecd61443249261daf/images/v4/logos/208x226-stacked-green.png)
 
 "This product uses the TMDb API but is not endorsed or certified by TMDb."
+
+![flow chart](https://drive.google.com/file/d/0B-dk5VYJmwbFRl9qd0RHVU9ZMXc/view?ts=5888f8b0)
+
+(https://googledrive.com/host/0Bdk5VYJmwbFZG9uZjMtcmp1VGM)
+
+https://drive.google.com/file/d/0B-dk5VYJmwbFZG9uZjMtcmp1VGM/view?usp=sharing
