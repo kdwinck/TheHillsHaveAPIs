@@ -175,6 +175,4 @@ Testing was done using gulp, mocha, and superagent.
 
 "This product uses the TMDb API but is not endorsed or certified by TMDb."
 
-![TMDB Logo](https://googledrive.com/host/0B-dk5VYJmwbFRl9qd0RHVU9ZMXc)
-
 ![thehillshaveapis](https://cloud.githubusercontent.com/assets/18372172/22401404/ab684f2a-e586-11e6-97d0-e82d74ae2d0a.png)
