@@ -9,10 +9,10 @@ require('../server');
 const PORT = process.env.PORT || 3000;
 const url = 'http://localhost:3000';
 
-const mockReview = {
-  rating: 10,
-  reviewText: 'test review',
-};
+// const mockReview = {
+//   rating: 10,
+//   reviewText: 'test review',
+// };
 
 const mockUser = {
   username: 'testyMctesterson',
@@ -22,13 +22,13 @@ const mockUser = {
   reviews: [],
 };
 
-const mockMovie = {
-  original_title: 'Test',
-  release_date: '2000-01-01',
-  overview: 'testing my patience',
-  rating: 10,
-  reviews: [],
-};
+// const mockMovie = {
+//   original_title: 'Test',
+//   release_date: '2000-01-01',
+//   overview: 'testing my patience',
+//   rating: 10,
+//   reviews: [],
+// };
 
 describe('should start and kill server per unit test', function(){
   before('start the server', function(done){
@@ -51,6 +51,81 @@ describe('should start and kill server per unit test', function(){
       }
     });
   });
+  describe('/signup', function() {
+    it('should sign up a user', function(done) {
+      request.post(`${url}/signup`)
+        .send({'username': 'Test', 'password': 'password', 'email': 'test@email.com'})
+        .end( (err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.text).to.equal('successful user signup');
+          done();
+        });
+    });
+    it('should respond 400 if no username', function(done) {
+      request.post(`${url}/signup`)
+        .send({'password': 'password', 'email': 'test@email.com'})
+        .end( (err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.text).to.equal('no username');
+          done();
+        });
+    });
+    it('should respond 400 if no password', function(done) {
+      request.post(`${url}/signup`)
+        .send({'username': 'username', 'email': 'test@email.com'})
+        .end( (err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.text).to.equal('no password');
+          done();
+        });
+    });
+  });
+  describe('/login', function() {
+    let tokenData;
+    let testUser = new User(mockUser);
+    before(done => {
+      testUser.hashPassword(testUser.password)
+        .then(() => testUser.save())
+        .then(user => user.generateToken())
+        .then(token => {
+          tokenData = token;
+          done();
+        })
+        .catch(done);
+    });
+    after(done => {
+      User.remove({})
+        .then(() => done())
+        .catch(done);
+    });
+    it('will return a newly generated token', function(done) {
+      request.get(`${url}/login`)
+        .auth('testyMctesterson', 'test')
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.text).to.equal(tokenData);
+          done();
+        });
+    });
+    it('will respond 401 with wrong password', function(done) {
+      request.get(`${url}/login`)
+        .auth('testyMctesterson', 'wrong')
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.text).to.equal('wrong password');
+          done();
+        });
+    });
+    it('will respond 500 if a user isnt retrieved', function(done) {
+      request.get(`${url}/login`)
+        .auth('wrong', 'test')
+        .end((err, res) => {
+          expect(res.status).to.equal(500);
+          expect(res.text).to.equal('server error');
+          done();
+        });
+    });
+  });
   describe('Un-Auth /GET for users', function() {
     let userTest;
     before(done => {
@@ -59,7 +134,8 @@ describe('should start and kill server per unit test', function(){
         userTest = user;
         userTest.save();
       })
-      .then(() => done());
+      .then(() => done())
+      .catch(done);
     });
     after(done => {
       User.remove({})
@@ -84,11 +160,9 @@ describe('should start and kill server per unit test', function(){
     });
     it('Will Give Additional USER INFO', function(done) {
       request.get(`${url}/users/${userTest._id}`)
-      // console.log(userTest._id)
       .end((err, res) => {
         expect(res.status).to.equal(200);
         expect(res.body.username).to.equal('testyMctesterson');
-        // expect(res.body.password).to.equal();
         expect(res.body.email).to.equal('test@testy.test');
         expect(Array.isArray(res.body.reviews)).to.equal(true);
         expect(Array.isArray(res.body.favMovies)).to.equal(false);

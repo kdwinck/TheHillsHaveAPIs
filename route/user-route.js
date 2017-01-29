@@ -4,6 +4,7 @@ const Router = require('express').Router;
 const userRouter = module.exports = new Router();
 const jsonParser = require('body-parser').json();
 const User = require('../model/user');
+// const createError = require('http-errors');
 // const Movie = require('../model/movie');
 // const Review = require('../model/review');
 const basicAuth = require('../lib/basic-auth-middleware');
@@ -42,7 +43,6 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
     return user.generateToken();
   })
   .then(token => {
-    // console.log(token);
     res.send(token);
   })
   .catch(next);
