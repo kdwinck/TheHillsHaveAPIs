@@ -177,7 +177,3 @@ Testing was done using gulp, mocha, and superagent.
 
 
 ![thehillshaveapis](https://cloud.githubusercontent.com/assets/18372172/22401404/ab684f2a-e586-11e6-97d0-e82d74ae2d0a.png)
-
-
-
-
