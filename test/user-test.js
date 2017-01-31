@@ -30,7 +30,7 @@ const mockUser = {
 //   reviews: [],
 // };
 
-describe('should start and kill server per unit test', function(){
+describe('A User Route', function(){
   before('start the server', function(done){
     if(server.isRunning === false){
       server.listen(PORT, function(){
@@ -54,8 +54,10 @@ describe('should start and kill server per unit test', function(){
   describe('/signup', function() {
     it('should sign up a user', function(done) {
       request.post(`${url}/signup`)
-        .send({'username': 'Test', 'password': 'password', 'email': 'test@email.com'})
+        .set('Content-type', 'application/json')
+        .send({username: 'Test', password: 'password', email: 'test@email.com'})
         .end( (err, res) => {
+          console.log(res.body);
           expect(res.status).to.equal(200);
           expect(res.text).to.equal('successful user signup');
           done();
@@ -104,6 +106,7 @@ describe('should start and kill server per unit test', function(){
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.text).to.equal(tokenData);
+          console.log(res.body);
           done();
         });
     });
@@ -203,7 +206,7 @@ describe('should start and kill server per unit test', function(){
     });
   });
 
-  describe('/auth-users', function() {
+  describe('Auth /GET for auth-users', function() {
     let tokenData;
     before(done => {
       new User(mockUser).save()
@@ -248,4 +251,107 @@ describe('should start and kill server per unit test', function(){
         });
     });
   });
+  describe('/UPDATE a user', function() {
+    let tokenData;
+    // let user;
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        // let user = this.user;
+        return user.generateToken();
+      })
+      .then(token => {
+        tokenData = token;
+        done();
+      });
+    });
+    after(done => {
+      User.remove({})
+      .then(() => done())
+      .catch(done);
+    });
+    it('will update a user', function(done) {
+      request.put(`${url}/users`)
+      .set('Authorization', 'Bearer ' + tokenData)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        console.log('before res.body log');
+        console.log(res.body);
+        done();
+      });
+    });
+
+    // it('will not delete user in the database - No Token', function(done) {
+    //   request.delete(`${url}/users`)
+    //   .set('Authorization', 'Bearer ' + '')
+    //   .end((err, res) => {
+    //     expect(res.status).to.equal(500);
+    //     expect(res.text).to.equal('server error');
+    //     done();
+    //   });
+    //
+    // });
+    // it('will not delete user in database - Invalid Token Passed', function(done) {
+    //   request.delete(`${url}/users`)
+    //   .auth('TestName', 'pass')
+    //   .end((err, res) => {
+    //     expect(res.status).to.equal(400);
+    //     expect(res.text).to.equal('token error');
+    //     done();
+    //   });
+    // });
+  });
+
+  describe('/DELETE a user', function() {
+    let tokenData;
+    // let user;
+    before(done => {
+      new User(mockUser).save()
+      .then(user => {
+        // let user = this.user;
+        return user.generateToken();
+      })
+      .then(token => {
+        tokenData = token;
+        done();
+      });
+    });
+    after(done => {
+      User.remove({})
+      .then(() => done())
+      .catch(done);
+    });
+    it('will delete user in the database - Correct Token', function(done) {
+      request.delete(`${url}/users`)
+      .set('Authorization', 'Bearer ' + tokenData)
+      .end((err, res) => {
+        expect(res.status).to.equal(200);
+        console.log('before res.body log');
+        console.log(res.body._id);
+        done();
+      });
+    });
+
+    it('will not delete user in the database - No Token', function(done) {
+      request.delete(`${url}/users`)
+      .set('Authorization', 'Bearer ' + '')
+      .end((err, res) => {
+        expect(res.status).to.equal(500);
+        expect(res.text).to.equal('server error');
+        done();
+      });
+
+    });
+    it('will not delete user in database - Invalid Token Passed', function(done) {
+      request.delete(`${url}/users`)
+      .auth('TestName', 'pass')
+      .end((err, res) => {
+        expect(res.status).to.equal(400);
+        expect(res.text).to.equal('token error');
+        done();
+      });
+    });
+  });
+
+
 });
