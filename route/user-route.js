@@ -24,7 +24,8 @@ userRouter.post('/signup', jsonParser, (req, res) => {
     user.save();
     delete req.body.password;
   })
-  .then(() => res.send('successful user signup'))
+  // .then(() => res.send('successful user signup'))
+  .then(() => res.send(user))
   .catch(err => {
     res.send(err);
   });
@@ -32,6 +33,7 @@ userRouter.post('/signup', jsonParser, (req, res) => {
 
 //authorized login
 userRouter.get('/login', basicAuth, (req, res, next) => {
+  // let user;
   if(!req.auth.username) {
     return res.status(400).send('no username');
   } if(!req.auth.password) {
@@ -44,6 +46,8 @@ userRouter.get('/login', basicAuth, (req, res, next) => {
   })
   .then(token => {
     res.send(token);
+    // res.send(user);
+    // console.log(user);
   })
   .catch(next);
 });
@@ -93,12 +97,13 @@ userRouter.get('/auth-users', bearerAuth, (req, res) => {
 });
 
 userRouter.put('/users', jsonParser, bearerAuth, (req, res) => {
-  User.findByIdAndUpdate(req.user.id, req.body)
+  User.findByIdAndUpdate(req.user._id, req.body, {new: true})
   .then(user => user.hashPassword(req.body.password))
   .then(user => {
     user.save();
     delete req.body.password;
     res.json(user);
+    // console.log(user);
   })
   .catch(e => {
     console.log(e);

@@ -91,7 +91,7 @@ curl -H "Authorization Bearer <your token>" http://localhost:3000/auth-users
 This will update a logged in users information.
 
 ```
-curl -H "Authorization: Bearer <your token>" -H "Content-type: application/json" -d '{<information you want to update>}' -X PUT http://localhost:3000/auth-users
+curl -H "Authorization: Bearer <your token>" -H "Content-type: application/json" -d '{<information you want to update>}' -X PUT http://localhost:3000/users
 ```
 
 ### DELETE /users
@@ -193,6 +193,11 @@ curl -H "Authorization: Bearer <your token>" -X DELETE http://localhost:3000/mov
   - express
   - bluebird
   - http-errors
+  - bcrypt
+  - es6-promise
+  - isomorphic-fetch
+  - jsonwebtoken
+  - body-parser
 
 
 * NPM Dev-Dependencies
