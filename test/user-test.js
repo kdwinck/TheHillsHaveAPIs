@@ -9,11 +9,6 @@ require('../server');
 const PORT = process.env.PORT || 3000;
 const url = 'http://localhost:3000';
 
-// const mockReview = {
-//   rating: 10,
-//   reviewText: 'test review',
-// };
-
 const mockUser = {
   username: 'testyMctesterson',
   password: 'test',
@@ -21,14 +16,6 @@ const mockUser = {
   favMovies: [],
   reviews: [],
 };
-
-// const mockMovie = {
-//   original_title: 'Test',
-//   release_date: '2000-01-01',
-//   overview: 'testing my patience',
-//   rating: 10,
-//   reviews: [],
-// };
 
 describe('A User Route', function(){
   before('start the server', function(done){
@@ -51,23 +38,26 @@ describe('A User Route', function(){
       }
     });
   });
+
   describe('/signup', function() {
     it('should sign up a user', function(done) {
       request.post(`${url}/signup`)
         .set('Content-type', 'application/json')
         .send({username: 'Test', password: 'password', email: 'test@email.com'})
         .end( (err, res) => {
-          console.log(res.body);
+          // console.log(res.body);
           expect(res.status).to.equal(200);
-          expect(res.text).to.equal('successful user signup');
+          expect(res.body.username).to.equal('Test');
+          expect(res.body.email).to.equal('test@email.com');
           done();
         });
     });
     it('should respond 400 if no username', function(done) {
       request.post(`${url}/signup`)
-        .send({'password': 'password', 'email': 'test@email.com'})
+        .send({password: 'password', email: 'test@email.com'})
         .end( (err, res) => {
           expect(res.status).to.equal(400);
+          expect(res.body.username).to.not.exist;
           expect(res.text).to.equal('no username');
           done();
         });
@@ -82,6 +72,7 @@ describe('A User Route', function(){
         });
     });
   });
+
   describe('/login', function() {
     let tokenData;
     let testUser = new User(mockUser);
@@ -100,13 +91,13 @@ describe('A User Route', function(){
         .then(() => done())
         .catch(done);
     });
+
     it('will return a newly generated token', function(done) {
       request.get(`${url}/login`)
         .auth('testyMctesterson', 'test')
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.text).to.equal(tokenData);
-          console.log(res.body);
           done();
         });
     });
@@ -129,6 +120,7 @@ describe('A User Route', function(){
         });
     });
   });
+
   describe('Un-Auth /GET for users', function() {
     let userTest;
     before(done => {
@@ -145,6 +137,7 @@ describe('A User Route', function(){
       .then(() => done())
       .catch(done);
     });
+
     it('will return an array of ONLY USER IDs', function(done){
       request.get(`${url}/users`)
       .end((err, res) => {
@@ -173,6 +166,7 @@ describe('A User Route', function(){
       });
     });
   });
+
   describe('/users/:id', function() {
     let userTest;
     before(done => {
@@ -188,6 +182,7 @@ describe('A User Route', function(){
       .then(() => done())
       .catch(done);
     });
+
     it('will return the requested user with limitied information', function(done){
       request.get(`${url}/users/${userTest._id}`)
       .end((err, res) => {
@@ -197,10 +192,20 @@ describe('A User Route', function(){
         done();
       });
     });
+    it('will give error adding email and not ID (400)', function(done) {
+      request.get(`${url}/users/${userTest.email}`)
+      .end((err, res) => {
+        expect(res.status).to.equal(400);
+        expect(Array.isArray(res.body)).to.equal(false);
+        done();
+      });
+    });
     it('Will give error for invalid USER ID', function(done) {
       request.get(`${url}/users/5555`)
       .end((err, res) => {
         expect(res.status).to.equal(400);
+        expect(res.body._id).to.not.exist;
+        expect(res.text).to.equal('user not found');
         done();
       });
     });
@@ -253,11 +258,9 @@ describe('A User Route', function(){
   });
   describe('/UPDATE a user', function() {
     let tokenData;
-    // let user;
     before(done => {
       new User(mockUser).save()
       .then(user => {
-        // let user = this.user;
         return user.generateToken();
       })
       .then(token => {
@@ -270,45 +273,44 @@ describe('A User Route', function(){
       .then(() => done())
       .catch(done);
     });
-    it('will update a user', function(done) {
+
+    it('will update a User successfully(200)', function(done) {
       request.put(`${url}/users`)
       .set('Authorization', 'Bearer ' + tokenData)
+      .send({username: 'test', password:'test', email: 'test@test.com'})
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        console.log('before res.body log');
-        console.log(res.body);
+        expect(res.body.username).to.equal('test');
+        // expect(res.body.password).to.equal(User.hashPassword((res.body.password))
+        expect(res.body.email).to.equal('test@test.com');
         done();
       });
     });
-
-    // it('will not delete user in the database - No Token', function(done) {
-    //   request.delete(`${url}/users`)
-    //   .set('Authorization', 'Bearer ' + '')
-    //   .end((err, res) => {
-    //     expect(res.status).to.equal(500);
-    //     expect(res.text).to.equal('server error');
-    //     done();
-    //   });
-    //
-    // });
-    // it('will not delete user in database - Invalid Token Passed', function(done) {
-    //   request.delete(`${url}/users`)
-    //   .auth('TestName', 'pass')
-    //   .end((err, res) => {
-    //     expect(res.status).to.equal(400);
-    //     expect(res.text).to.equal('token error');
-    //     done();
-    //   });
-    // });
+    it('will not update User(500) No Token', function(done) {
+      request.put(`${url}/users`)
+      .set('Authorization', 'Bearer ' + '')
+      .end((err, res) => {
+        expect(res.status).to.equal(500);
+        expect(res.text).to.equal('server error');
+        done();
+      });
+    });
+    it('will not delete User(404) Invalid URL', function(done) {
+      request.put(`${url}/user`)
+      .set('Authorization', 'Bearer ' + '')
+      .end((err, res) => {
+        expect(res.status).to.equal(404);
+        expect(res.error.toString()).to.equal('Error: cannot PUT /user (404)');
+        done();
+      });
+    });
   });
 
   describe('/DELETE a user', function() {
     let tokenData;
-    // let user;
     before(done => {
       new User(mockUser).save()
       .then(user => {
-        // let user = this.user;
         return user.generateToken();
       })
       .then(token => {
@@ -321,17 +323,15 @@ describe('A User Route', function(){
       .then(() => done())
       .catch(done);
     });
+
     it('will delete user in the database - Correct Token', function(done) {
       request.delete(`${url}/users`)
       .set('Authorization', 'Bearer ' + tokenData)
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        console.log('before res.body log');
-        console.log(res.body._id);
         done();
       });
     });
-
     it('will not delete user in the database - No Token', function(done) {
       request.delete(`${url}/users`)
       .set('Authorization', 'Bearer ' + '')
@@ -340,7 +340,6 @@ describe('A User Route', function(){
         expect(res.text).to.equal('server error');
         done();
       });
-
     });
     it('will not delete user in database - Invalid Token Passed', function(done) {
       request.delete(`${url}/users`)
@@ -352,6 +351,5 @@ describe('A User Route', function(){
       });
     });
   });
-
 
 });
